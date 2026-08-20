@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <!-- Colleghiamo il file CSS rigorosamente separato -->
+    <link rel="stylesheet" href="{% static 'css/profilo.css' %}?v=1">
+{% endblock %}
+
+{% block contenuto %}
+<div class="profilo-container">
+    <div class="profilo-header">
+        <h2>Il mio Profilo</h2>
+        <p>Gestisci le tue informazioni personali e i dettagli di contatto.</p>
+    </div>
+
+    <!-- Messaggi di sistema (Successo o Errore) -->
+    {% if messages %}
+        <div style="margin-bottom: 20px;">
+            {% for message in messages %}
+                <div style="padding: 12px; border-radius: 4px; text-align: center; font-weight: bold; {% if message.tags == 'error' %}background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;{% else %}background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- UN UNICO FORM HTML CHE INVIA I DATI DI ENTRAMBI I FORM DJANGO -->
+    <form method="POST" action="{% url 'utenti:profilo_paziente' %}">
+        {% csrf_token %}
+
+        <h3 class="form-section-title">Credenziali di Accesso</h3>
+        
+        <!-- Ciclo sul Form dell'Utente Base (Nome, Cognome, Email) -->
+        {% for field in user_form %}
+            <div class="profilo-row">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div class="input-box">
+                    {{ field }}
+                    {% if field.errors %}
+                        <span class="error-text">{{ field.errors|striptags }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+
+        <h3 class="form-section-title">Dati Anagrafici e Contatti</h3>
+        
+        <!-- Ciclo sul Form del Paziente (Telefono, Data di nascita, Indirizzo) -->
+        {% for field in paziente_form %}
+            <div class="profilo-row">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div class="input-box">
+                    {{ field }}
+                    {% if field.errors %}
+                        <span class="error-text">{{ field.errors|striptags }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="profilo-btn-salva">Salva Modifiche</button>
+    </form>
+</div>
+{% endblock %}

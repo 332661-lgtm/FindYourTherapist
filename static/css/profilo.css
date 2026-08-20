@@ -1,0 +1,130 @@
+/* =========================================
+   STILI PER LA MODIFICA DEL PROFILO
+   ========================================= */
+
+.profilo-container {
+    max-width: 700px;
+    margin: 40px auto;
+    background: white;
+    padding: 35px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border-top: 5px solid #2e8b57;
+}
+
+.profilo-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.profilo-header h2 {
+    color: #2e8b57;
+    margin: 0 0 10px 0;
+}
+
+.profilo-header p {
+    color: #666;
+    margin: 0;
+}
+
+.form-section-title {
+    color: #333;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+}
+
+.profilo-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.profilo-row label {
+    width: 30%;
+    font-weight: bold;
+    color: #444;
+    padding-right: 15px;
+    text-align: right;
+}
+
+.profilo-row .input-box {
+    width: 70%;
+}
+
+.profilo-row input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.profilo-row input:focus {
+    border-color: #2e8b57;
+    outline: none;
+    box-shadow: 0 0 5px rgba(46, 139, 87, 0.2);
+}
+
+.profilo-btn-salva {
+    width: 100%;
+    padding: 14px;
+    background-color: #2e8b57;
+    color: white;
+    border: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 20px;
+}
+
+.profilo-btn-salva:hover {
+    background-color: #1f633d;
+}
+
+.error-text {
+    color: #d9534f;
+    font-size: 0.85em;
+    font-weight: bold;
+    margin-top: 4px;
+    display: block;
+}
+
+/* Stili extra per i campi del Terapeuta */
+.profilo-row textarea,
+.profilo-row select[multiple] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: inherit;
+    resize: vertical; /* Permette all'utente di allungare la casella di testo solo in verticale */
+}
+
+.profilo-row textarea:focus,
+.profilo-row select[multiple]:focus {
+    border-color: #2e8b57;
+    outline: none;
+    box-shadow: 0 0 5px rgba(46, 139, 87, 0.2);
+}
+
+select.spec-dropdown {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: inherit;
+    background-color: white;
+}
+
+/* Stile visivo per quando il nuovo studio è bloccato (Mutua Esclusione) */
+input:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}

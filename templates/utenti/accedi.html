@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <!-- Riusiamo lo stesso CSS della registrazione per coerenza visiva -->
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=2">
+{% endblock %}
+
+{% block contenuto %}
+<div class="auth-container" style="max-width: 500px;"> <!-- Leggermente più stretto -->
+    <h2 class="auth-title">Accedi a FindYourTherapist</h2>
+
+    <!-- Gestione errori di login nativi di Django -->
+    {% if form.errors %}
+        <div class="message-box message-error">
+            Username o password non corretti. Riprova.
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-row">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div class="input-wrapper">{{ field }}</div>
+            </div>
+        {% endfor %}
+        
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn-submit">Accedi</button>
+        </div>
+    </form>
+
+    <!-- Linea di separazione -->
+    <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd;">
+
+    <!-- Sezione "Non hai un account?" -->
+    <div style="text-align: center;">
+        <p style="color: #666; margin-bottom: 15px; font-weight: bold;">Non hai un account? Inizia da qui:</p>
+        <div style="display: flex; gap: 15px; justify-content: center;">
+            <a href="{% url 'utenti:registrati' %}" class="btn-secondary">Profilo Paziente</a>
+            <a href="{% url 'utenti:registrati_terapeuta' %}" class="btn-secondary">Profilo Terapeuta</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

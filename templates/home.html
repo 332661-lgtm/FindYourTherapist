@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block contenuto %}
+    <div style="text-align: center; margin-top: 50px;">
+        <h1>Benvenuto in FindYourTherapist</h1>
+        {% if user.paziente %}
+            <p>Ciao, {{ user.first_name|default:user.username }}! Esplora i nostri terapeuti e prenota la tua seduta.</p>
+        {% elif user.terapeuta %}
+            <p>Benvenuto/a, Dott. {{ user.last_name|default:user.username }}! Gestisci le tue prenotazioni e le tue sedute.</p>
+        {% else %}
+            <p>Accedi o registrati per iniziare a prenotare le tue sedute con i terapeuti che fanno al caso tuo.</p>
+        {% endif %}
+        <p>Questa è la Home Page principale</p>
+    </div>
+{% endblock %}

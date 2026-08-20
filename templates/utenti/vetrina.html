@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/vetrina.css' %}?v=3">
+{% endblock %}
+
+{% block contenuto %}
+<div class="vetrina-container">
+    
+    <!-- SINISTRA: Modulo dei Filtri -->
+    <aside class="sidebar-filtri">
+        <h3>Filtra Terapeuti</h3>
+        <form method="GET" action="{% url 'utenti:vetrina' %}" id="filtri-form">
+            
+            <div class="filter-group">
+                <label for="citta">Città dello Studio</label>
+                <input type="text" name="citta" id="citta" list="citta-list" placeholder="Es. Montesilvano" value="{{ valori_scelti.citta }}">
+                <datalist id="citta-list">
+                    {% for c in citta_disponibili %}
+                        <option value="{{ c }}">
+                    {% endfor %}
+                </datalist>
+            </div>
+
+            <!-- IL NUOVO SISTEMA A TAG -->
+            <div class="filter-group">
+                <label>Specializzazioni</label>
+                <div class="multi-input-group">
+                    <input type="text" id="spec-input" list="spec-list" placeholder="Es. Ansia...">
+                    <datalist id="spec-list">
+                        {% for spec in specializzazioni %}
+                            <!-- data-id ci serve per passare il numero corretto a Django -->
+                            <option data-id="{{ spec.id }}" value="{{ spec.nome }}"></option>
+                        {% endfor %}
+                    </datalist>
+                    <button type="button" id="add-spec-btn" class="btn-secondary-small">Aggiungi</button>
+                </div>
+
+                <!-- Qui dentro finiscono i bottoncini creati dall'utente o ricaricati da Django -->
+                <div id="tags-container" class="tags-container">
+                    {% for spec in specializzazioni %}
+                        {% if spec.id in valori_scelti.specializzazioni %}
+                            <div class="spec-tag">
+                                {{ spec.nome }}
+                                <span class="remove-tag" onclick="removeTag(this)">×</span>
+                                <!-- Questo è il vero dato che Django legge -->
+                                <input type="hidden" name="specializzazione" value="{{ spec.id }}">
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label for="prezzo_max">Prezzo max a seduta (€)</label>
+                <input type="number" name="prezzo_max" id="prezzo_max" placeholder="Nessun limite" value="{{ valori_scelti.prezzo_max }}" min="0" step="5">
+            </div>
+
+            <button type="submit" class="btn-filtra">Cerca</button>
+            <a href="{% url 'utenti:vetrina' %}" style="display: block; text-align: center; margin-top: 15px; color: #888; font-size: 0.85em; text-decoration: none;">Azzera i filtri</a>
+        </form>
+    </aside>
+
+    <!-- DESTRA: Risultati -->
+    <section class="risultati-container">
+        {% for terapeuta in terapeuti %}
+            <div class="terapeuta-card">
+                <div class="terapeuta-info">
+                    <h4>Dott. {{ terapeuta.user.first_name }} {{ terapeuta.user.last_name }}</h4>
+                    
+                    <p><strong>Città:</strong> 
+                        {% for studio in terapeuta.studi.all %}
+                            {{ studio.citta }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            Non specificata
+                        {% endfor %}
+                    </p>
+                    
+                    <p style="margin: 12px 0;">
+                        {% for spec in terapeuta.specializzazioni.all %}
+                            <span class="badge-spec">{{ spec.nome }}</span>
+                        {% empty %}
+                            Nessuna specializzazione inserita
+                        {% endfor %}
+                    </p>
+                    
+                    {% if terapeuta.descrizione %}
+                        <div class="terapeuta-descrizione">
+                            "{{ terapeuta.descrizione|truncatewords:40 }}"
+                        </div>
+                    {% endif %}
+                    
+                    <p><strong>Prezzo a seduta:</strong> {% if terapeuta.prezzo %}€ {{ terapeuta.prezzo }}{% else %}Da concordare{% endif %}</p>
+                </div>
+                
+                <div class="terapeuta-azioni">
+                    <a href="#" class="btn-profilo">Prenota / Profilo</a>
+                </div>
+            </div>
+        {% empty %}
+            <div style="background: white; padding: 40px; border-radius: 8px; text-align: center; color: #666; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                <h3 style="color: #333; margin-top: 0;">Nessun risultato trovato</h3>
+                <p>Non ci sono terapeuti che soddisfano i criteri selezionati.</p>
+                <a href="{% url 'utenti:vetrina' %}" style="color: #2e8b57; font-weight: bold; text-decoration: none;">Mostra tutti i terapeuti</a>
+            </div>
+        {% endfor %}
+    </section>
+</div>
+
+<!-- SCRIPT PER GESTIRE I TAG DINAMICI -->
+<script>
+    document.getElementById('add-spec-btn').addEventListener('click', function() {
+        const input = document.getElementById('spec-input');
+        const datalist = document.getElementById('spec-list');
+        const tagsContainer = document.getElementById('tags-container');
+        const val = input.value.trim();
+
+        if (!val) return; // Se l'utente clicca ma la barra è vuota, ignora
+
+        let specId = null;
+        let specName = null;
+        
+        // Cerca nella lista nascosta se quello che l'utente ha scritto esiste davvero
+        for (let option of datalist.options) {
+            if (option.value === val) {
+                specId = option.getAttribute('data-id');
+                specName = option.value;
+                break;
+            }
+        }
+
+        if (specId) {
+            // Controlla se il tag è già stato aggiunto per evitare doppioni
+            if (!document.querySelector('input[name="specializzazione"][value="'+specId+'"]')) {
+                
+                // Crea il nuovo elemento visivo e l'input nascosto per Django
+                const tag = document.createElement('div');
+                tag.className = 'spec-tag';
+                tag.innerHTML = `
+                    ${specName}
+                    <span class="remove-tag" onclick="removeTag(this)">×</span>
+                    <input type="hidden" name="specializzazione" value="${specId}">
+                `;
+                tagsContainer.appendChild(tag);
+            }
+            input.value = ''; // Svuota la barra di ricerca pronto per il prossimo
+        } else {
+            alert('Seleziona una specializzazione valida suggerita dal menu a tendina.');
+        }
+    });
+
+    // Funzione per eliminare il tag se l'utente clicca la X
+    function removeTag(element) {
+        element.parentElement.remove();
+    }
+</script>
+{% endblock %}
