@@ -1,7 +1,6 @@
 /* =========================================
-   STILI PER LA MODIFICA DEL PROFILO
+   STILI GLOBALI DEL PROFILO
    ========================================= */
-
 .profilo-container {
     max-width: 700px;
     margin: 40px auto;
@@ -36,6 +35,9 @@
     font-size: 1.2em;
 }
 
+/* =========================================
+   GRIGLIA E IMPAGINAZIONE DEL FORM
+   ========================================= */
 .profilo-row {
     display: flex;
     align-items: center;
@@ -54,7 +56,9 @@
     width: 70%;
 }
 
-.profilo-row input {
+/* Escludiamo le checkbox per non farle esplodere a tutto schermo */
+.profilo-row input:not([type="checkbox"]),
+.profilo-row textarea {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -63,10 +67,20 @@
     font-family: inherit;
 }
 
-.profilo-row input:focus {
+/* Evidenziazione verde al click */
+.profilo-row input:focus,
+.profilo-row textarea:focus {
     border-color: #2e8b57;
     outline: none;
     box-shadow: 0 0 5px rgba(46, 139, 87, 0.2);
+}
+
+.error-text {
+    color: #d9534f;
+    font-size: 0.85em;
+    font-weight: bold;
+    margin-top: 4px;
+    display: block;
 }
 
 .profilo-btn-salva {
@@ -87,44 +101,135 @@
     background-color: #1f633d;
 }
 
-.error-text {
-    color: #d9534f;
-    font-size: 0.85em;
-    font-weight: bold;
-    margin-top: 4px;
-    display: block;
-}
-
-/* Stili extra per i campi del Terapeuta */
-.profilo-row textarea,
-.profilo-row select[multiple] {
+/* =========================================
+   SISTEMA A TAG DELLE SPECIALIZZAZIONI
+   ========================================= */
+.spec-dropdown {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-family: inherit;
-    resize: vertical; /* Permette all'utente di allungare la casella di testo solo in verticale */
-}
-
-.profilo-row textarea:focus,
-.profilo-row select[multiple]:focus {
-    border-color: #2e8b57;
-    outline: none;
-    box-shadow: 0 0 5px rgba(46, 139, 87, 0.2);
-}
-
-select.spec-dropdown {
-    flex-grow: 1;
-    padding: 10px;
+    padding: 12px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-family: inherit;
     background-color: white;
+    cursor: pointer;
+    transition: border-color 0.3s;
 }
 
-/* Stile visivo per quando il nuovo studio è bloccato (Mutua Esclusione) */
-input:disabled {
-    cursor: not-allowed;
-    opacity: 0.7;
+.spec-dropdown:focus {
+    border-color: #2e8b57;
+    outline: none;
+}
+
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.spec-tag {
+    background-color: #e2f0e6;
+    color: #1f633d;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.85em;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    border: 1px solid #2e8b57;
+}
+
+.remove-tag {
+    margin-left: 8px;
+    color: #d9534f;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.remove-tag:hover {
+    color: #c9302c;
+}
+
+/* =========================================
+   SISTEMA DINAMICO DEGLI STUDI (GRIGLIA)
+   ========================================= */
+.studi-suggeriti-box {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px dashed #ccc;
+    border-radius: 6px;
+}
+
+#lista-studi-dinamica {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Affianca a due a due */
+    gap: 10px;
+    max-height: 110px; /* Limite per far apparire lo scroll */
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* Barra di scorrimento stilizzata */
+#lista-studi-dinamica::-webkit-scrollbar {
+    width: 6px;
+}
+#lista-studi-dinamica::-webkit-scrollbar-thumb {
+    background-color: #2e8b57;
+    border-radius: 4px;
+}
+#lista-studi-dinamica::-webkit-scrollbar-track {
+    background-color: #f1f1f1; 
+}
+
+/* Elemento singolo dello studio */
+.studio-suggerito-item {
+    /* Regole Salvavita per annullare l'ereditarietà di .profilo-row label */
+    width: 100% !important;
+    text-align: left !important;
+    font-weight: normal !important;
+    
+    padding: 10px 12px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    display: block; 
+    box-sizing: border-box; 
+    transition: all 0.2s;
+    margin: 0; 
+}
+
+.studio-suggerito-item:hover {
+    background-color: #e2f0e6;
+    border-color: #2e8b57;
+}
+
+/* Layout interno del bottone studio */
+.studio-content {
+    display: flex;
+    align-items: center; 
+    gap: 10px;
+    width: 100%;
+}
+
+.studio-content span {
+    word-break: break-word;
+    line-height: 1.3;
+    flex-grow: 1; /* Il testo prende tutto lo spazio rimanente */
+}
+
+/* Casella di spunta verde modernizzata */
+/* Stile blindato per la VERA checkbox */
+.profilo-row input.studio-checkbox {
+    width: 18px !important;
+    height: 18px !important;
+    cursor: pointer;
+    accent-color: #2e8b57; 
+    margin: 0 !important;
+    padding: 0 !important;
+    flex-shrink: 0;
+    box-sizing: border-box;
 }

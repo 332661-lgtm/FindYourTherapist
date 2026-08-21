@@ -196,3 +196,32 @@ class ProfiloTerapeutaView(LoginRequiredMixin, View):
             'terapeuta_form': terapeuta_form
         }
         return render(request, 'utenti/profilo_terapeuta.html', context)
+
+class AggiungiStudioView(LoginRequiredMixin, View):
+    def get(self, request):
+        if not hasattr(request.user, 'terapeuta'):
+            messages.error(request, "Accesso negato.")
+            return redirect('home')
+        return render(request, 'utenti/aggiungi_studio.html')
+
+    def post(self, request):
+        if not hasattr(request.user, 'terapeuta'):
+            return redirect('home')
+
+        citta = request.POST.get('citta')
+        indirizzo = request.POST.get('indirizzo')
+
+        if citta and indirizzo:
+            # Crea lo studio (se non esiste già identico)
+            nuovo_studio, created = Studio.objects.get_or_create(
+                citta=citta.strip().capitalize(),
+                indirizzo=indirizzo.strip()
+            )
+            # Lo associa automaticamente al medico loggato
+            request.user.terapeuta.studi.add(nuovo_studio)
+            
+            messages.success(request, "Nuova sede registrata e aggiunta al tuo profilo!")
+            return redirect('utenti:profilo_terapeuta')
+        
+        messages.error(request, "Errore: Compila sia la Città che l'Indirizzo.")
+        return render(request, 'utenti/aggiungi_studio.html')

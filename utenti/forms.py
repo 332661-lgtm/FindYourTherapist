@@ -99,10 +99,7 @@ class PazienteUpdateForm(forms.ModelForm):
         }
 
 class TerapeutaUpdateForm(forms.ModelForm):
-    # Campi "fantasma": non esistono nel modello Terapeuta, ci servono solo per l'HTML
-    nuovo_studio_citta = forms.CharField(max_length=100, required=False, label="Città")
-    nuovo_studio_indirizzo = forms.CharField(max_length=200, required=False, label="Indirizzo completo")
-
+    
     class Meta:
         model = Terapeuta
         fields = ['numero_telefono', 'prezzo', 'descrizione', 'studi', 'specializzazioni']
@@ -114,8 +111,8 @@ class TerapeutaUpdateForm(forms.ModelForm):
             'specializzazioni': 'Le tue specializzazioni'
         }
         widgets = {
-            'descrizione': forms.Textarea(attrs={'rows': 4}),
-            # IL TRUCCO MAGICO: Trasforma la orrenda select in una lista di spunte
+            # Blocchiamo il resize via CSS in linea e mettiamo il maxlength a 500
+            'descrizione': forms.Textarea(attrs={'rows': 4, 'maxlength': '500', 'style': 'resize: none;'}),
             'specializzazioni': forms.CheckboxSelectMultiple(),
             'studi': forms.CheckboxSelectMultiple(),
         }

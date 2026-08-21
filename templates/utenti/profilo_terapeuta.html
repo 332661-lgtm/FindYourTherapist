@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/profilo.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'css/profilo.css' %}?v=6">
 {% endblock %}
 
 {% block contenuto %}
@@ -11,6 +11,13 @@
         <h2>Profilo Professionale</h2>
     </div>
 
+    {% if terapeuta_form.errors or user_form.errors %}
+        <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+            <strong>Attenzione:</strong> Controlla i dati inseriti.
+            {{ terapeuta_form.non_field_errors }}
+            {{ user_form.non_field_errors }}
+        </div>
+    {% endif %}
     {% if messages %}
         <div style="margin-bottom: 20px;">
             {% for message in messages %}
@@ -39,38 +46,45 @@
         
         <div class="profilo-row">
             <label>{{ terapeuta_form.numero_telefono.label }}</label>
-            <div class="input-box">{{ terapeuta_form.numero_telefono }}</div>
+            <div class="input-box">
+                {{ terapeuta_form.numero_telefono }}
+                {% if terapeuta_form.numero_telefono.errors %}<span class="error-text">{{ terapeuta_form.numero_telefono.errors|striptags }}</span>{% endif %}
+            </div>
         </div>
         
         <div class="profilo-row">
             <label>{{ terapeuta_form.prezzo.label }}</label>
-            <div class="input-box">{{ terapeuta_form.prezzo }}</div>
+            <div class="input-box">
+                {{ terapeuta_form.prezzo }}
+                {% if terapeuta_form.prezzo.errors %}<span class="error-text">{{ terapeuta_form.prezzo.errors|striptags }}</span>{% endif %}
+            </div>
         </div>
 
         <div class="profilo-row">
             <label>{{ terapeuta_form.descrizione.label }}</label>
-            <div class="input-box">{{ terapeuta_form.descrizione }}</div>
+            <div class="input-box">
+                {{ terapeuta_form.descrizione }}
+                <!-- Contatore testuale di aiuto -->
+                <small style="color: #888; display: block; margin-top: 5px;">Massimo 500 caratteri.</small>
+                {% if terapeuta_form.descrizione.errors %}<span class="error-text">{{ terapeuta_form.descrizione.errors|striptags }}</span>{% endif %}
+            </div>
         </div>
 
-        <!-- SEZIONE SPECIALIZZAZIONI BLINDATA (SOLO SELEZIONE) -->
+        <!-- SEZIONE SPECIALIZZAZIONI AUTOMATICA -->
         <div class="profilo-row" style="align-items: flex-start;">
             <label>Le tue Specializzazioni</label>
             <div class="input-box">
-                <div class="multi-input-group">
-                    <select id="spec-select" class="spec-dropdown">
-                        <option value="">Seleziona una specializzazione...</option>
-                        {% for spec in tutte_specializzazioni %}
-                            <!-- Se la specializzazione è già tra quelle del medico, la nascondiamo dal menu -->
-                            <option value="{{ spec.id }}" {% if spec.id in mie_specializzazioni %}style="display:none;" disabled{% endif %}>
-                                {{ spec.nome }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <button type="button" id="add-spec-btn" class="btn-secondary-small" style="padding: 10px;">Aggiungi</button>
-                </div>
+                <!-- Il bottone Aggiungi è sparito, fa tutto in automatico la select -->
+                <select id="spec-select" class="spec-dropdown">
+                    <option value="">Seleziona una specializzazione...</option>
+                    {% for spec in tutte_specializzazioni %}
+                        <option value="{{ spec.id }}" {% if spec.id in mie_specializzazioni %}style="display:none;" disabled{% endif %}>
+                            {{ spec.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
                 
                 <div id="tags-container" class="tags-container">
-                    <!-- Mostra i tag già salvati al caricamento della pagina -->
                     {% for spec in tutte_specializzazioni %}
                         {% if spec.id in mie_specializzazioni %}
                             <div class="spec-tag">
@@ -91,36 +105,28 @@
                 
                 <input type="text" id="cerca-citta-studio" placeholder="Inizia digitando la Città (es. Montesilvano)" autocomplete="off">
                 
-                <!-- Box che compare solo quando digiti la città -->
                 <div id="studi-suggeriti" class="studi-suggeriti-box" style="display:none;">
-                    <p style="font-size: 0.9em; color: #666; margin-top: 0;">Sedi registrate in questa città (Clicca per selezionare):</p>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 0; margin-bottom: 10px;">Sedi registrate in questa città (Clicca per selezionare):</p>
                     
                     <div id="lista-studi-dinamica">
                         {% for studio in tutti_studi %}
-                            <div class="studio-suggerito-item {% if studio.id in miei_studi %}selezionato{% endif %}" 
-                                 data-citta="{{ studio.citta|lower }}" 
-                                 data-id="{{ studio.id }}">
-                                
-                                <span>📍 {{ studio.indirizzo }}, {{ studio.citta }}</span>
-                                <span class="status-icon">{% if studio.id in miei_studi %}✓{% else %}+{% endif %}</span>
-                                
-                                <input type="checkbox" name="studi" value="{{ studio.id }}" id="chk_studio_{{ studio.id }}" class="hidden-checkbox" {% if studio.id in miei_studi %}checked{% endif %}>
-                            </div>
+                            <label class="studio-suggerito-item" data-citta="{{ studio.citta|lower }}">
+                                <div class="studio-content">
+                                    <input type="checkbox" name="studi" value="{{ studio.id }}" class="studio-checkbox" {% if studio.id in miei_studi %}checked{% endif %}>
+                                    <span style="font-size: 0.95em;">📍 {{ studio.indirizzo }}, {{ studio.citta }}</span>
+                                </div>
+                            </label>
                         {% endfor %}
                     </div>
                 </div>
 
-                <!-- Box aggiunta nuovo studio -->
-                <div class="nuovo-studio-box" style="margin-top: 20px;">
-                    <h4>Non trovi la tua sede? Aggiungila:</h4>
-                    <div style="margin-bottom: 10px;">
-                        <label>Città confermata:</label>
-                        <input type="text" name="nuovo_studio_citta" id="nuovo_studio_citta_input" readonly style="background:#eee;">
-                    </div>
-                    <div>
-                        <label>Indirizzo completo:</label>
-                        <input type="text" name="nuovo_studio_indirizzo" placeholder="Es. Via Ippocrate 4">
-                    </div>
+                <!-- Box aggiunta nuovo studio con input sbloccato -->
+                <!-- Bottone per creare un nuovo studio in una pagina separata -->
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
+                    <p style="font-size: 0.9em; color: #666; margin-top: 0; margin-bottom: 10px;">Non trovi la tua sede nell'elenco?</p>
+                    <a href="{% url 'utenti:aggiungi_studio' %}" class="btn-secondary-small" style="text-decoration: none; display: inline-block;">
+                        + Registra una nuova Sede
+                    </a>
                 </div>
 
             </div>
@@ -130,6 +136,5 @@
     </form>
 </div>
 
-<!-- Importiamo il JS esterno rispettando la Separation of Concerns -->
 <script src="{% static 'js/profilo_terapeuta.js' %}"></script>
 {% endblock %}

@@ -1,19 +1,16 @@
 document.addEventListener("DOMContentLoaded", function() {
     
     /* =========================================
-       1. LOGICA SPECIALIZZAZIONI (SOLO SELEZIONE)
+       1. LOGICA SPECIALIZZAZIONI (AUTO-AGGIUNTA)
        ========================================= */
     const specSelect = document.getElementById('spec-select');
-    const addSpecBtn = document.getElementById('add-spec-btn');
     const tagsContainer = document.getElementById('tags-container');
 
-    // Aggiunta di una specializzazione
-    addSpecBtn.addEventListener('click', function() {
-        const option = specSelect.options[specSelect.selectedIndex];
-        
-        if (!option.value) return; // Ignora se ha scelto il placeholder vuoto
+    // Appena l'utente seleziona una voce, crea il tag in automatico
+    specSelect.addEventListener('change', function() {
+        const option = this.options[this.selectedIndex];
+        if (!option.value) return; 
 
-        // Crea il tag
         const tag = document.createElement('div');
         tag.className = 'spec-tag';
         tag.innerHTML = `
@@ -23,51 +20,43 @@ document.addEventListener("DOMContentLoaded", function() {
         `;
         tagsContainer.appendChild(tag);
 
-        // Nasconde l'opzione dal menu a tendina per evitare doppioni
         option.disabled = true;
         option.style.display = 'none';
-        specSelect.selectedIndex = 0; // Torna al placeholder
+        this.selectedIndex = 0; // Torna istantaneamente su "Seleziona..."
     });
 
-    // Rimozione di una specializzazione (Event Delegation)
     tagsContainer.addEventListener('click', function(e) {
         if (e.target.classList.contains('remove-tag')) {
             const specId = e.target.getAttribute('data-id');
             const tagDiv = e.target.parentElement;
             
-            // Riabilita l'opzione nel menu a tendina
             const option = specSelect.querySelector(`option[value="${specId}"]`);
             if (option) {
                 option.disabled = false;
                 option.style.display = '';
             }
-            // Elimina il tag
             tagDiv.remove();
         }
     });
 
-
     /* =========================================
-       2. LOGICA STUDI E MUTUA ESCLUSIONE
+       2. LOGICA STUDI
        ========================================= */
     const inputCitta = document.getElementById('cerca-citta-studio');
     const boxSuggerimenti = document.getElementById('studi-suggeriti');
     const studioItems = document.querySelectorAll('.studio-suggerito-item');
-    
-    const inputNuovaCitta = document.getElementById('nuovo_studio_citta_input');
-    const inputNuovoIndirizzo = document.querySelector('input[name="nuovo_studio_indirizzo"]');
 
-    // Ricerca asincrona città
     inputCitta.addEventListener('input', function() {
         const testoCercato = this.value.toLowerCase().trim();
-        inputNuovaCitta.value = this.value; 
         
         if (testoCercato.length > 2) {
             boxSuggerimenti.style.display = 'block';
             studioItems.forEach(item => {
                 const cittaStudio = item.getAttribute('data-citta');
-                if (cittaStudio.includes(testoCercato) || item.classList.contains('selezionato')) {
-                    item.style.display = 'flex';
+                const isChecked = item.querySelector('.studio-checkbox').checked;
+                
+                if (cittaStudio.includes(testoCercato) || isChecked) {
+                    item.style.display = 'block';
                 } else {
                     item.style.display = 'none';
                 }
@@ -75,8 +64,8 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             let hasSelections = false;
             studioItems.forEach(item => {
-                if (item.classList.contains('selezionato')) {
-                    item.style.display = 'flex';
+                if (item.querySelector('.studio-checkbox').checked) {
+                    item.style.display = 'block';
                     hasSelections = true;
                 } else {
                     item.style.display = 'none';
@@ -86,54 +75,5 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Inizializza la visualizzazione se ci sono già dati
     inputCitta.dispatchEvent(new Event('input'));
-
-    // Mutua Esclusione: Controllo Selezione Studio Esistente
-    document.getElementById('lista-studi-dinamica').addEventListener('click', function(e) {
-        const item = e.target.closest('.studio-suggerito-item');
-        if (!item) return;
-
-        const id = item.getAttribute('data-id');
-        const checkbox = document.getElementById('chk_studio_' + id);
-        const icon = item.querySelector('.status-icon');
-        
-        checkbox.checked = !checkbox.checked; 
-        
-        if (checkbox.checked) {
-            item.classList.add('selezionato');
-            icon.innerText = '✓';
-            
-            // LOCK: Disabilita il campo nuovo studio
-            inputNuovoIndirizzo.value = '';
-            inputNuovoIndirizzo.disabled = true;
-            inputNuovoIndirizzo.placeholder = "Deseleziona gli studi per crearne uno nuovo";
-            inputNuovoIndirizzo.style.backgroundColor = "#e9ecef";
-        } else {
-            item.classList.remove('selezionato');
-            icon.innerText = '+';
-            
-            // UNLOCK: Se nessun altro studio è selezionato, riabilita
-            if (!document.querySelector('.hidden-checkbox:checked')) {
-                inputNuovoIndirizzo.disabled = false;
-                inputNuovoIndirizzo.placeholder = "Es. Via Ippocrate 4";
-                inputNuovoIndirizzo.style.backgroundColor = "";
-            }
-        }
-    });
-
-    // Mutua Esclusione: Se l'utente digita un nuovo studio, deseleziona i vecchi
-    inputNuovoIndirizzo.addEventListener('input', function() {
-        if (this.value.trim().length > 0) {
-            document.querySelectorAll('.hidden-checkbox:checked').forEach(chk => {
-                const id = chk.value;
-                const item = document.querySelector(`.studio-suggerito-item[data-id="${id}"]`);
-                const icon = item.querySelector('.status-icon');
-                
-                chk.checked = false;
-                item.classList.remove('selezionato');
-                icon.innerText = '+';
-            });
-        }
-    });
 });
