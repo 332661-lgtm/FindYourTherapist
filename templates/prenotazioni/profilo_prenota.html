@@ -62,6 +62,14 @@
             <div id="slot-orari-container">
                 <!-- I bottoni degli orari appariranno qui -->
             </div>
+            <!-- FORM INVISIBILE PER L'INVIO FINALE -->
+            <form id="form-conferma-prenotazione" method="POST" action="{% url 'prenotazioni:crea_prenotazione_veloce' %}" style="display: none;">
+                {% csrf_token %}
+                <input type="hidden" name="terapeuta_id" value="{{ terapeuta.id }}">
+                <input type="hidden" name="studio_id" id="hidden_studio_id">
+                <input type="hidden" name="data" id="hidden_data">
+                <input type="hidden" name="ora" id="hidden_ora">
+            </form>
         </div>
 
     </div>

@@ -19,7 +19,7 @@ class DisponibilitaAdmin(admin.ModelAdmin):
 class AssenzaAdmin(admin.ModelAdmin):
     # Colleghiamo il form di validazione
     form = AssenzaForm
-    list_display = ('terapeuta', 'data_ora_inizio', 'data_ora_fine')
+    list_display = ('terapeuta', 'data_inizio', 'data_fine')
     list_filter = ('terapeuta',) # Nota la virgola, list_filter richiede una tupla
     
 # Registriamo i modelli collegandoli alle nuove classi Admin

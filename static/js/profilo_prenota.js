@@ -23,11 +23,59 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         ],
         onChange: function(selectedDates, dateStr, instance) {
-            // QUI PARTIRÀ L'ALGORITMO AL CLICK SUL GIORNO BIANCO
-            console.log("Il paziente ha cliccato il giorno:", dateStr);
-            contenitoreSlot.innerHTML = `<p style="text-align:center; color: #2e8b57; font-weight:bold;">Ricerca orari disponibili per il ${dateStr}...</p>`;
+            // Trova quale studio è attualmente selezionato nei radio button
+            const studioSelezionato = document.querySelector('.radio-studio:checked');
+            if(!studioSelezionato) return;
+
+            contenitoreSlot.innerHTML = `<p style="text-align:center; color: #2e8b57;">Ricerca orari disponibili...</p>`;
             
-            // TODO: Aggiungeremo qui la chiamata fetch() all'API di Django
+            // 1. CHIAMATA ALLA NOSTRA API PYTHON
+            const url_api = `/prenotazioni/api/slot-liberi/?terapeuta_id=${document.querySelector('[name="terapeuta_id"]').value}&studio_id=${studioSelezionato.value}&data=${dateStr}`;
+            
+            fetch(url_api)
+            .then(response => response.json())
+            .then(data => {
+                contenitoreSlot.innerHTML = `<h5 style="margin-bottom:10px;">Orari disponibili per il ${dateStr}:</h5>`;
+                
+                const slotContainer = document.createElement('div');
+                slotContainer.style.display = 'flex';
+                slotContainer.style.gap = '10px';
+                slotContainer.style.flexWrap = 'wrap';
+
+                if(data.slots.length === 0) {
+                    contenitoreSlot.innerHTML += `<p style="color:#d9534f;">Nessun orario disponibile per questa data. Riprova in un altro giorno.</p>`;
+                    return;
+                }
+
+                // 2. CREAZIONE DEI BOTTONI PER OGNI ORARIO
+                data.slots.forEach(ora => {
+                    const btn = document.createElement('button');
+                    // CAMBIA QUI: usa la nuova classe CSS
+                    btn.className = 'btn-slot-orario'; 
+                    btn.textContent = ora;
+                    btn.type = 'button';
+                    
+                    // 3. IL CLICK CHE INVIA LA PRENOTAZIONE (IL POP-UP)
+                    btn.onclick = function() {
+                        if(confirm(`Sei sicuro di voler inviare la richiesta di prenotazione per le ${ora}? (Durata: 1 ora)`)) {
+                            // Riempiamo il form invisibile con i dati precisi
+                            document.getElementById('hidden_studio_id').value = studioSelezionato.value;
+                            document.getElementById('hidden_data').value = dateStr;
+                            document.getElementById('hidden_ora').value = ora;
+                            
+                            // Invio formale al database!
+                            document.getElementById('form-conferma-prenotazione').submit();
+                        }
+                    };
+                    slotContainer.appendChild(btn);
+                });
+                
+                contenitoreSlot.appendChild(slotContainer);
+            })
+            .catch(error => {
+                console.error("Errore API:", error);
+                contenitoreSlot.innerHTML = `<p style="color:red;">Errore di connessione. Riprova.</p>`;
+            });
         }
     });
 

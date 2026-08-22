@@ -12,16 +12,6 @@
         <p>Aggiungi un nuovo ambulatorio al database.</p>
     </div>
 
-    {% if messages %}
-        <div style="margin-bottom: 20px;">
-            {% for message in messages %}
-                <div style="padding: 12px; border-radius: 4px; text-align: center; font-weight: bold; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
     <form method="POST" action="{% url 'utenti:aggiungi_studio' %}">
         {% csrf_token %}
         

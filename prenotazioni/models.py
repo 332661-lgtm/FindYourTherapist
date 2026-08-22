@@ -14,7 +14,7 @@ class Prenotazione(models.Model):
     data_ora = models.DateTimeField() 
     durata_minuti = models.PositiveIntegerField(default=60)
     
-    stato = models.CharField(max_length=20, default="Confermata")
+    stato = models.CharField(max_length=20, default="Attesa", choices=[("Attesa", "Attesa"), ("Confermata", "Confermata"), ("Completata", "Completata"), ("Annullata", "Annullata")])
 
     def __str__(self):
         return f"Prenotazione {self.id} - Paziente: {self.paziente} | Terapeuta: {self.terapeuta} ({self.data_ora})"
@@ -92,6 +92,12 @@ class Disponibilita(models.Model):
     def clean(self):
         # Eseguiamo i controlli matematici SOLO se il Form non li ha cancellati!
         if self.ora_inizio and self.ora_fine:
+            # Impediamo l'inserimento di minuti (multipli di 1 ora)
+            if self.ora_inizio.minute != 0:
+                raise ValidationError({'ora_inizio': "L'orario di inizio deve essere un'ora esatta (es. 09:00, 10:00)."})
+            
+            if self.ora_fine.minute != 0:
+                raise ValidationError({'ora_fine': "L'orario di fine deve essere un'ora esatta (es. 10:00, 11:00)."})
             # 1. Controllo base: l'ora di inizio deve precedere l'ora di fine
             if self.ora_inizio >= self.ora_fine:
                 raise ValidationError("L'orario di inizio deve essere precedente all'orario di fine.")
@@ -113,32 +119,39 @@ class Disponibilita(models.Model):
 
 class Assenza(models.Model):
     terapeuta = models.ForeignKey('utenti.Terapeuta', on_delete=models.CASCADE, related_name='assenze')
-    data_ora_inizio = models.DateTimeField()
-    data_ora_fine = models.DateTimeField()
+    # 1. Diventano DateField
+    data_inizio = models.DateField(default=None)
+    data_fine = models.DateField(default=None)
     
-    # Campo opzionale per ricordarsi il motivo (es. "Ferie Estive", "Malattia", "Corso di aggiornamento")
     motivazione = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         verbose_name = "Assenza"
         verbose_name_plural = "Assenze"
-        ordering = ['data_ora_inizio']
+        ordering = ['data_inizio']
 
     def clean(self):
-        if self.data_ora_inizio and self.data_ora_fine and self.data_ora_inizio >= self.data_ora_fine:
-            raise ValidationError("L'ora di fine deve essere successiva all'ora di inizio.")
+        from django.core.exceptions import ValidationError
+        from prenotazioni.models import Prenotazione
+        
+        # Uso > e non >= così un medico può prendere un solo giorno di ferie (inizio=10, fine=10)
+        if self.data_inizio and self.data_fine and self.data_inizio > self.data_fine:
+            raise ValidationError("La data di fine non può essere precedente alla data di inizio.")
 
-        # Controllo se l'assenza va a coprire una prenotazione già esistente
+        # Se i dati sono invalidi o vuoti, ci fermiamo qui per evitare crash
+        if not self.data_inizio or not self.data_fine:
+            return
+
+        # 2. Controllo contro il campo data_ora__date del modello Prenotazione
         prenotazioni_esistenti = Prenotazione.objects.filter(
             terapeuta=self.terapeuta,
-            data_ora__date__gte=self.data_ora_inizio.date(),
-            data_ora__date__lte=self.data_ora_fine.date()
+            data_ora__date__gte=self.data_inizio,
+            data_ora__date__lte=self.data_fine
         )
-        for p in prenotazioni_esistenti:
-            p_inizio = p.data_ora
-            p_fine = p_inizio + timedelta(minutes=p.durata_minuti)
-            if p_inizio < self.data_ora_fine and p_fine > self.data_ora_inizio:
-                raise ValidationError(f"Non puoi segnare un'assenza in questo orario: hai già una seduta fissata il {p_inizio.strftime('%d/%m/%Y alle %H:%M')}.")
+        
+        if prenotazioni_esistenti.exists():
+            p = prenotazioni_esistenti.first()
+            raise ValidationError(f"Non puoi segnare un'assenza in questo periodo: hai già una seduta fissata il {p.data_ora.strftime('%d/%m/%Y alle %H:%M')}.")
 
     def __str__(self):
-        return f"Assenza {self.terapeuta}: dal {self.data_ora_inizio.strftime('%d/%m/%Y %H:%M')} al {self.data_ora_fine.strftime('%d/%m/%Y %H:%M')}"
+        return f"Assenza {self.terapeuta}: dal {self.data_inizio.strftime('%d/%m/%Y')} al {self.data_fine.strftime('%d/%m/%Y')}"

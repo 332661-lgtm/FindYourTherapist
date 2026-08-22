@@ -151,3 +151,87 @@ body {
 .dropdown-btn:hover {
     background-color: #f1f1f1; /* Sfondo grigio chiaro al passaggio del mouse */
 }
+
+/* =========================================
+   NOTIFICHE POP-UP (TOAST)
+   ========================================= */
+.toast-container {
+    position: fixed;
+    bottom: 20px;          /* Distanza dal fondo */
+    left: 20px;            /* Distanza da sinistra (cambia in 'right' se li preferisci a destra) */
+    z-index: 9999;         /* Assicura che stiano sopra a tutto il resto */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;             /* Spazio tra più messaggi contemporanei */
+    pointer-events: none;  /* Permette di cliccare gli elementi dietro il contenitore trasparente... */
+}
+
+.toast-message {
+    pointer-events: auto;  /* ... ma rende cliccabili i singoli messaggi */
+    min-width: 280px;
+    max-width: 400px;
+    padding: 16px 20px;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    color: #fff;
+    font-size: 0.95rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* Animazione di entrata scivolando da sinistra */
+    animation: slideInLeft 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Colori in base allo "stato" del messaggio di Django */
+.toast-success { background-color: #2e8b57; } /* Verde scuro */
+.toast-error { background-color: #d9534f; }   /* Rosso */
+.toast-warning { background-color: #f0ad4e; } /* Giallo */
+.toast-info { background-color: #5bc0de; }    /* Azzurro */
+
+.toast-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    margin-left: 15px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.toast-close:hover {
+    opacity: 1;
+}
+
+/* Le animazioni chiave */
+@keyframes slideInLeft {
+    from { transform: translateX(-120%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(-10%); opacity: 0; }
+}
+
+.btn-slot-orario {
+    background-color: #fff;
+    color: #2e8b57;
+    border: 2px solid #2e8b57;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100px; /* Larghezza fissa per allinearli bene */
+    text-align: center;
+}
+
+.btn-slot-orario:hover {
+    background-color: #2e8b57;
+    color: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(46,139,87,0.25);
+}

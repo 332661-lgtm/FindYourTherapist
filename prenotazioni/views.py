@@ -6,6 +6,9 @@ from django.views import View
 from .models import Assenza, Prenotazione, Disponibilita, Terapeuta
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from datetime import datetime, timedelta
+from django.utils import timezone
 
 class AggiungiPrenotazioneView(LoginRequiredMixin, View):
     def get(self, request):
@@ -145,4 +148,79 @@ class EliminaDisponibilitaView(LoginRequiredMixin, View):
         # 3. Messaggio di successo e ricarica della pagina
         messages.success(request, "Turno eliminato con successo.")
         return redirect('prenotazioni:visualizza_disponibilita')
+
+class OttieniSlotAPIView(View):
+    def get(self, request):
+        terapeuta_id = request.GET.get('terapeuta_id')
+        studio_id = request.GET.get('studio_id')
+        data_str = request.GET.get('data') # Arriva come 'YYYY-MM-DD'
+
+        # 1. Parsing della data
+        data_obj = datetime.strptime(data_str, '%Y-%m-%d').date()
+        giorno_settimana = data_obj.weekday() # 0 = Lunedì
+
+        # 2. Peschiamo i turni lavorativi in quel giorno/studio
+        turni = Disponibilita.objects.filter(terapeuta_id=terapeuta_id, studio_id=studio_id, giorno=giorno_settimana)
+        
+        # 3. Peschiamo le prenotazioni GIA' ESISTENTI per quel giorno (per evitare sovrapposizioni)
+        prenotazioni_esistenti = Prenotazione.objects.filter(terapeuta_id=terapeuta_id, data_ora__date=data_obj)
+
+        slot_disponibili = []
+        durata_richiesta = timedelta(minutes=60) # Il requisito minimo che hai imposto
+
+        # 4. L'ALGORITMO
+        for turno in turni:
+            # Creiamo l'orario di partenza (es. 09:00)
+            inizio_corrente = datetime.combine(data_obj, turno.ora_inizio)
+            fine_turno = datetime.combine(data_obj, turno.ora_fine)
+
+            while inizio_corrente + durata_richiesta <= fine_turno:
+                sovrapposizione = False
+                
+                # Controllo contro gli appuntamenti già presi
+                for p in prenotazioni_esistenti:
+                    # Rimuoviamo il fuso orario solo per fare i calcoli matematici base
+                    p_inizio = p.data_ora.replace(tzinfo=None) 
+                    p_fine = p_inizio + timedelta(minutes=p.durata_minuti)
+
+                    # Logica di sovrapposizione temporale
+                    if inizio_corrente < p_fine and (inizio_corrente + durata_richiesta) > p_inizio:
+                        sovrapposizione = True
+                        break
+                
+                if not sovrapposizione:
+                    slot_disponibili.append(inizio_corrente.strftime('%H:%M'))
+                
+                # Avanziamo di mezz'ora come da tua richiesta!
+                inizio_corrente += timedelta(hours=1) 
+
+        # Rimuove duplicati e ordina (se il medico ha fatto casini inserendo doppi turni)
+        slot_disponibili = sorted(list(set(slot_disponibili)))
+        
+        return JsonResponse({'slots': slot_disponibili})
+
+class CreaPrenotazioneVeloceView(LoginRequiredMixin, View):
+    def post(self, request):
+        if not hasattr(request.user, 'paziente'):
+            messages.error(request, "Devi essere registrato come paziente per prenotare.")
+            return redirect('home')
+
+        terapeuta = get_object_or_404(Terapeuta, id=request.POST.get('terapeuta_id'))
+        data_str = request.POST.get('data')
+        ora_str = request.POST.get('ora')
+
+        # Assembliamo l'orario e lo rendiamo "ufficiale" per Django (Aware Timezone)
+        data_ora_naive = datetime.strptime(f"{data_str} {ora_str}", "%Y-%m-%d %H:%M")
+        data_ora_ufficiale = timezone.make_aware(data_ora_naive)
+
+        # Creiamo la richiesta formale (che il medico vedrà in dashboard)
+        Prenotazione.objects.create(
+            paziente=request.user.paziente,
+            terapeuta=terapeuta,
+            data_ora=data_ora_ufficiale,
+            durata_minuti=60 # Fissato a 1 ora
+        )
+        
+        messages.success(request, f"Richiesta inviata! Attendi la conferma dal Dott. {terapeuta.user.last_name}.")
+        return redirect('utenti:vetrina')
 

@@ -25,14 +25,6 @@
                 <a href="{% url 'prenotazioni:visualizza_prenotazioni' %}">Gestisci Sedute</a>
             {% endif %}
 
-            {% if not user.is_authenticated %}
-                <a href="{% url 'utenti:accedi' %}">Prenota</a>
-            {% else %}
-                {% if user.paziente %}
-                    <a href="{% url 'prenotazioni:prenotazione' %}">Prenota</a>
-                {% endif %}
-            {% endif %}
-
             {% if user.paziente %}
                 <a href="#">Le mie Sedute</a>
             {% endif %}
@@ -92,6 +84,35 @@
         {% block contenuto %}
         {% endblock %}
     </main>
+    <!-- ==========================================
+         SISTEMA GLOBALE DI NOTIFICHE POP-UP (TOAST)
+         ========================================== -->
+    {% if messages %}
+        <div class="toast-container">
+            {% for message in messages %}
+                <!-- La classe cambia colore in base al tipo di messaggio (success, error, warning) -->
+                <div class="toast-message toast-{{ message.tags }}">
+                    <span>{{ message }}</span>
+                    <button class="toast-close" onclick="this.parentElement.remove();">&times;</button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- I tuoi script JS -->
     {% block extra_js %}{% endblock %}
+
+    <!-- SCRIPT PER FAR SCOMPARIRE I POP-UP DA SOLI DOPO 5 SECONDI -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                const toasts = document.querySelectorAll('.toast-message');
+                toasts.forEach(toast => {
+                    toast.style.animation = 'fadeOut 0.5s forwards';
+                    setTimeout(() => toast.remove(), 500); // Rimuove l'HTML dopo l'animazione
+                });
+            }, 5000); // 5000 millisecondi = 5 secondi
+        });
+    </script>
 </body>
 </html>

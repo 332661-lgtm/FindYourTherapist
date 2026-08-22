@@ -8,16 +8,6 @@
 {% block contenuto %}
 <div class="auth-container">
     <h2 class="auth-title">Registrazione Paziente</h2>
-    
-    {% if messages %}
-        <div>
-            {% for message in messages %}
-                <div class="message-box {% if message.tags == 'error' %}message-error{% else %}message-success{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
 
     <form method="POST">
         {% csrf_token %}

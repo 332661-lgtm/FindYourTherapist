@@ -12,6 +12,11 @@
     <aside class="sidebar-filtri">
         <h3>Filtra Terapeuti</h3>
         <form method="GET" action="{% url 'utenti:vetrina' %}" id="filtri-form">
+
+            <div class="filter-group">
+                <label for="cerca-nome">Cerca per Nome</label>
+                <input type="text" id="cerca-nome" placeholder="Es. Mario Rossi" autocomplete="off">
+            </div>
             
             <div class="filter-group">
                 <label for="citta">Città dello Studio</label>
@@ -158,5 +163,23 @@
     function removeTag(element) {
         element.parentElement.remove();
     }
+
+    // Ricerca in tempo reale per nome
+    document.getElementById('cerca-nome').addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        const cards = document.querySelectorAll('.terapeuta-card');
+        
+        cards.forEach(card => {
+            // Cerchiamo il tag <h4> che contiene il nome del dottore
+            const nome = card.querySelector('h4').textContent.toLowerCase();
+            
+            // Se il nome contiene le lettere digitate, lo mostriamo, altrimenti lo nascondiamo
+            if (nome.includes(query)) {
+                card.style.display = ''; // Ripristina il display originale
+            } else {
+                card.style.display = 'none'; // Nasconde la card
+            }
+        });
+    });
 </script>
 {% endblock %}

@@ -23,9 +23,6 @@ class PrenotazioneForm(forms.ModelForm):
         if data_scelta and data_scelta < timezone.now():
             self.add_error('data_ora', "La data e l'ora della prenotazione non possono essere nel passato.")
 
-        if data_scelta and (data_scelta.hour < 8 or data_scelta.hour > 20):
-            self.add_error('data_ora', "Le prenotazioni possono essere effettuate solo tra le 08:00 e le 20:00.")
-        
         return dati_puliti
 
 class DisponibilitaForm(forms.ModelForm):
@@ -58,19 +55,22 @@ class DisponibilitaForm(forms.ModelForm):
 class AssenzaForm(forms.ModelForm):
     class Meta:
         model = Assenza
-        fields = ['data_ora_inizio', 'data_ora_fine', 'motivazione']
+        # 1. Nomi aggiornati qui
+        fields = ['data_inizio', 'data_fine', 'motivazione']
         widgets = {
-            'data_ora_inizio': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'data_ora_fine': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            # 2. Nomi aggiornati e widget impostato su 'date'
+            'data_inizio': forms.DateInput(attrs={'type': 'date'}),
+            'data_fine': forms.DateInput(attrs={'type': 'date'}),
         }
 
     def clean(self):
         dati_puliti = super().clean()
-        data_ora_inizio = dati_puliti.get('data_ora_inizio')
-        data_ora_fine = dati_puliti.get('data_ora_fine')
+        # 3. Nomi aggiornati anche nei controlli
+        data_inizio = dati_puliti.get('data_inizio')
+        data_fine = dati_puliti.get('data_fine')
 
-        if data_ora_inizio and data_ora_fine and data_ora_inizio >= data_ora_fine:
-            self.add_error('data_ora_fine', "L'ora di fine deve essere successiva all'ora di inizio.")
+        if data_inizio and data_fine and data_inizio >= data_fine:
+            self.add_error('data_fine', "La data di fine deve essere successiva alla data di inizio.")
         return dati_puliti
 
     def __init__(self, *args, **kwargs):
