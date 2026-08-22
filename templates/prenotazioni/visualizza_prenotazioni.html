@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/prenotazioni.css' %}?v=1">
+{% endblock %}
+
+{% block contenuto %}
+<div class="prenotazioni-container">
+    <div class="header-sezione">
+        <h2>I Miei Appuntamenti</h2>
+    </div>
+
+    {% if prenotazioni %}
+        {% for p in prenotazioni %}
+            <div class="card-lista">
+                <div class="card-dettagli">
+                    <!-- Se l'utente è un Paziente vede il nome del medico, viceversa -->
+                    <strong>
+                        {% if request.user.paziente %}
+                            Dr. {{ p.terapeuta.user.last_name }}
+                        {% else %}
+                            Paziente: {{ p.paziente.user.first_name }} {{ p.paziente.user.last_name }}
+                        {% endif %}
+                    </strong>
+                    <span>📅 {{ p.data_ora|date:"d F Y, H:i" }} ({{ p.durata_minuti }} min)</span>
+                </div>
+                <div>
+                    <!-- Renderizza la classe CSS in base allo stato in minuscolo -->
+                    <span class="badge {{ p.stato|lower }}">{{ p.stato }}</span>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align: center; color: #666; padding: 20px;">Non ci sono appuntamenti in programma.</p>
+    {% endif %}
+</div>
+{% endblock %}

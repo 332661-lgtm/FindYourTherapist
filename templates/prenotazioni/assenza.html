@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/prenotazioni.css' %}?v=1">
+{% endblock %}
+
+{% block contenuto %}
+<div class="prenotazioni-container">
+    <div class="header-sezione">
+        <h2>Gestione Calendario</h2>
+    </div>
+
+    <div class="tabs-menu">
+        <a href="{% url 'prenotazioni:visualizza_disponibilita' %}" class="tab-link">I Miei Turni</a>
+        <a href="{% url 'prenotazioni:disponibilita' %}" class="tab-link">Aggiungi Turno</a>
+        <a href="{% url 'prenotazioni:assenza' %}" class="tab-link attivo">Registra Assenza</a>
+    </div>
+
+    <p style="color: #666; margin-bottom: 20px;">Blocca le prenotazioni per ferie o imprevisti.</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Da (Data e Ora):</label>
+                {{ form.data_ora_inizio }}
+                {% if form.data_ora_inizio.errors %}<div class="error-text">{{ form.data_ora_inizio.errors|striptags }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+                <label>A (Data e Ora):</label>
+                {{ form.data_ora_fine }}
+                {% if form.data_ora_fine.errors %}<div class="error-text">{{ form.data_ora_fine.errors|striptags }}</div>{% endif %}
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Motivazione (Opzionale):</label>
+                {{ form.motivazione }}
+            </div>
+        </div>
+        <button type="submit" class="btn-principale" style="background-color: #d9534f;">Blocca Calendario</button>
+    </form>
+</div>
+{% endblock %}

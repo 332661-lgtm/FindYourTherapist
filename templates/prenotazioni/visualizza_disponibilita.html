@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/prenotazioni.css' %}?v=1">
+{% endblock %}
+
+{% block contenuto %}
+<div class="prenotazioni-container">
+    <div class="header-sezione">
+        <h2>Gestione Calendario</h2>
+    </div>
+
+    <!-- IL MENU MAGICO -->
+    <div class="tabs-menu">
+        <a href="{% url 'prenotazioni:visualizza_disponibilita' %}" class="tab-link attivo">I Miei Turni</a>
+        <a href="{% url 'prenotazioni:disponibilita' %}" class="tab-link">Aggiungi Turno</a>
+        <a href="{% url 'prenotazioni:assenza' %}" class="tab-link">Registra Assenza</a>
+    </div>
+
+    {% if disponibilita %}
+        {% for disp in disponibilita %}
+            <div class="card-lista">
+                <div class="card-dettagli">
+                    <strong>{{ disp.get_giorno_display }}</strong>
+                    <span>Dalle {{ disp.ora_inizio }} alle {{ disp.ora_fine }}</span>
+                    <span style="font-size: 0.8em; color: #888;">📍 {{ disp.studio.citta }}</span>
+                </div>
+                
+                <!-- NUOVO: Form per l'eliminazione con Pop-up Javascript nativo -->
+                <form method="POST" action="{% url 'prenotazioni:elimina_disponibilita' disp.pk %}" onsubmit="return confirm('Sei sicuro di voler eliminare questo turno?');">
+                    {% csrf_token %}
+                    <button type="submit" style="background: none; border: none; color: #d9534f; font-size: 1.8em; cursor: pointer; font-weight: bold; padding: 0 10px;" title="Elimina turno">
+                        &times;
+                    </button>
+                </form>
+
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align: center; color: #666; padding: 20px;">Non hai ancora configurato i tuoi orari lavorativi.</p>
+    {% endif %}
+</div>
+{% endblock %}

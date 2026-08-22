@@ -21,15 +21,15 @@
             {% if user.terapeuta %}
                 <!-- Avrà un pallino con il numero di richieste -->
                 <a href="#">Richieste sedute</a>
-                <a href="#">Programmazione studi</a>
-                <a href="#">Gestisci Sedute</a>
+                <a href="{% url 'prenotazioni:visualizza_disponibilita' %}">Programmazione studi</a>
+                <a href="{% url 'prenotazioni:visualizza_prenotazioni' %}">Gestisci Sedute</a>
             {% endif %}
 
             {% if not user.is_authenticated %}
                 <a href="{% url 'utenti:accedi' %}">Prenota</a>
             {% else %}
                 {% if user.paziente %}
-                    <a href="#">Prenota</a>
+                    <a href="{% url 'prenotazioni:prenotazione' %}">Prenota</a>
                 {% endif %}
             {% endif %}
 
