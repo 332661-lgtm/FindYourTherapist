@@ -143,3 +143,100 @@
 .badge.confermata { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
 .badge.attesa { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
 .badge.cancellata { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+/* =========================================
+   CARD PROFILO TERAPEUTA (Stile "Vetrina")
+   ========================================= */
+.terapeuta-card {
+    background: #fff;
+    border-left: 5px solid #2e8b57;
+    border-radius: 6px;
+    padding: 20px 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.terapeuta-card h2 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.terapeuta-card p {
+    margin: 5px 0;
+    color: #555;
+}
+
+.bio-quote {
+    font-style: italic;
+    color: #666;
+    border-left: 3px solid #ccc;
+    padding-left: 10px;
+    margin: 15px 0;
+}
+
+/* =========================================
+   SEZIONE PRENOTAZIONE E CALENDARIO
+   ========================================= */
+.prenotazione-layout {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.selezione-studio {
+    flex: 1;
+    min-width: 250px;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+.studio-radio-label {
+    display: block;
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 12px 15px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.studio-radio-label:hover {
+    border-color: #2e8b57;
+    background-color: #e2f0e6;
+}
+
+.studio-radio-label input[type="radio"] {
+    margin-right: 10px;
+    accent-color: #2e8b57;
+}
+
+.calendario-container {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    padding: 20px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    /* Opacità ridotta finché non si seleziona uno studio */
+    opacity: 0.5; 
+    pointer-events: none; 
+    transition: opacity 0.3s;
+}
+
+.calendario-container.attivo {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Contenitore per i futuri bottoncini degli orari */
+#slot-orari-container {
+    margin-top: 20px;
+    width: 100%;
+}

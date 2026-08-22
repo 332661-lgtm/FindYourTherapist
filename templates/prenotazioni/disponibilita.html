@@ -17,6 +17,12 @@
         <a href="{% url 'prenotazioni:assenza' %}" class="tab-link">Registra Assenza</a>
     </div>
 
+    {% if form.non_field_errors %}
+        <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+            <strong>Attenzione:</strong> {{ form.non_field_errors|striptags }}
+        </div>
+    {% endif %}
+
     <form method="POST">
         {% csrf_token %}
         <div class="form-grid">

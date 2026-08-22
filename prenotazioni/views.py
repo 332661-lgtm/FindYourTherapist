@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.shortcuts import redirect, render
 from .forms import AssenzaForm, DisponibilitaForm, PrenotazioneForm
 from django.views import View
-from .models import Assenza, Prenotazione, Disponibilita
+from .models import Assenza, Prenotazione, Disponibilita, Terapeuta
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 
@@ -90,6 +90,28 @@ class VisualizzaAssenzeView(LoginRequiredMixin, View):
     def get(self, request):
         assenze = Assenza.objects.all()
         return render(request, 'prenotazioni/visualizza_assenze.html', {'assenze': assenze})
+
+# Rimuovi "import json" in cima al file se non ti serve per altro
+
+class ProfiloPrenotaView(LoginRequiredMixin, View):
+    def get(self, request, terapeuta_id):
+        terapeuta = get_object_or_404(Terapeuta, id=terapeuta_id)
+        studi = terapeuta.studi.all()
+
+        giorni_attivi_per_studio = {}
+        
+        for studio in studi:
+            turni = Disponibilita.objects.filter(terapeuta=terapeuta, studio=studio)
+            giorni_js = [(turno.giorno + 1) % 7 for turno in turni]
+            giorni_attivi_per_studio[studio.id] = list(set(giorni_js))
+
+        context = {
+            'terapeuta': terapeuta,
+            'studi': studi,
+            # CAMBIA QUESTA RIGA: Passa il dizionario Python puro!
+            'mappa_giorni_json': giorni_attivi_per_studio 
+        }
+        return render(request, 'prenotazioni/profilo_prenota.html', context)
 
 class EliminaPrenotazioneView(LoginRequiredMixin, View):
     def post(self, request, prenotazione_id):

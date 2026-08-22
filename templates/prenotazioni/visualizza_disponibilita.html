@@ -23,7 +23,7 @@
             <div class="card-lista">
                 <div class="card-dettagli">
                     <strong>{{ disp.get_giorno_display }}</strong>
-                    <span>Dalle {{ disp.ora_inizio }} alle {{ disp.ora_fine }}</span>
+                    <span>Dalle {{ disp.ora_inizio|time:"H:i" }} alle {{ disp.ora_fine|time:"H:i" }}</span>
                     <span style="font-size: 0.8em; color: #888;">📍 {{ disp.studio.citta }}</span>
                 </div>
                 

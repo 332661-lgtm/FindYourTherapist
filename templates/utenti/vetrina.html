@@ -95,7 +95,11 @@
                 </div>
                 
                 <div class="terapeuta-azioni">
-                    <a href="#" class="btn-profilo">Prenota / Profilo</a>
+                    {% if not user.is_authenticated %}
+                       <a href="{% url 'utenti:accedi' %}" class="btn-profilo">Prenota / Profilo</a>
+                    {% elif user.paziente %}
+                        <a href="{% url 'prenotazioni:profilo_prenota' terapeuta.id %}" class="btn-profilo">Prenota / Profilo</a>
+                    {% endif %}
                 </div>
             </div>
         {% empty %}

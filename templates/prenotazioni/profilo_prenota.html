@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/prenotazioni.css' %}?v=2">
+    <!-- CSS di Flatpickr per il calendario -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block contenuto %}
+<div class="prenotazioni-container" style="max-width: 900px;">
+    
+    <!-- CARD PROFILO DEL MEDICO -->
+    <div class="terapeuta-card">
+        <h2>Dott. {{ terapeuta.user.first_name }} {{ terapeuta.user.last_name }}</h2>
+        <p><strong>Prezzo a seduta:</strong> € {{ terapeuta.prezzo|default:"Da concordare" }}</p>
+        
+        <div style="margin: 10px 0;">
+            {% for spec in terapeuta.specializzazioni.all %}
+                <span class="badge" style="background-color: #e2f0e6; color: #1f633d; font-weight: normal;">
+                    {{ spec.nome }}
+                </span>
+            {% endfor %}
+        </div>
+
+        {% if terapeuta.descrizione %}
+            <div class="bio-quote">"{{ terapeuta.descrizione }}"</div>
+        {% endif %}
+    </div>
+
+    <!-- SEZIONE INTERATTIVA: STUDIO -> CALENDARIO -> ORARI -->
+    <h3 style="color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px;">Prenota un appuntamento</h3>
+    
+    <div class="prenotazione-layout">
+        
+        <!-- STEP 1: Seleziona Studio -->
+        <div class="selezione-studio">
+            <h4>1. Scegli la sede</h4>
+            {% if studi %}
+                <form id="form-prenotazione">
+                    {% for studio in studi %}
+                        <label class="studio-radio-label">
+                            <input type="radio" name="studio_id" value="{{ studio.id }}" class="radio-studio">
+                            📍 {{ studio.indirizzo }}, {{ studio.citta }}
+                        </label>
+                    {% endfor %}
+                </form>
+            {% else %}
+                <p style="color: #d9534f;">Questo terapeuta non ha sedi registrate.</p>
+            {% endif %}
+        </div>
+
+        <!-- STEP 2: Il Calendario -->
+        <div class="calendario-container" id="box-calendario">
+            <h4 style="margin-top: 0;">2. Scegli il giorno</h4>
+            <p id="avviso-calendario" style="color: #666; font-size: 0.9em;">Seleziona prima una sede lavorativa.</p>
+            
+            <!-- Qui Flatpickr inietterà il calendario -->
+            <input type="text" id="calendario-input" style="display: none;">
+
+            <!-- STEP 3: Slot Orari -->
+            <div id="slot-orari-container">
+                <!-- I bottoni degli orari appariranno qui -->
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Salviamo la mappa dei giorni di Django in formato JSON sicuro per il JS -->
+{{ mappa_giorni_json|json_script:"mappa-giorni-data" }}
+
+{% endblock %}
+
+{% block extra_js %}
+    <!-- JS di Flatpickr -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Traduzione in italiano per i giorni e i mesi -->
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/it.js"></script>
+
+    <!-- IL NOSTRO FILE JS SEPARATO -->
+    <script src="{% static 'js/profilo_prenota.js' %}"></script>
+{% endblock %}
