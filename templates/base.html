@@ -20,13 +20,12 @@
             <a href="{% url 'utenti:vetrina' %}">Cerca Terapeuti</a>
             {% if user.terapeuta %}
                 <!-- Avrà un pallino con il numero di richieste -->
-                <a href="#">Richieste sedute</a>
                 <a href="{% url 'prenotazioni:visualizza_disponibilita' %}">Programmazione studi</a>
-                <a href="{% url 'prenotazioni:visualizza_prenotazioni' %}">Gestisci Sedute</a>
+                <a href="{% url 'prenotazioni:visualizza_prenotazioni' %}">Sedute</a>
             {% endif %}
 
             {% if user.paziente %}
-                <a href="#">Le mie Sedute</a>
+                <a href="{% url 'prenotazioni:visualizza_prenotazioni' %}">Le mie Sedute</a>
             {% endif %}
             {% if user.is_authenticated %}
                 <!-- MENU A TENDINA CON ICONA OMINO -->

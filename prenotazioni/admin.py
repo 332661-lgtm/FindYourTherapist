@@ -6,8 +6,8 @@ from .forms import PrenotazioneForm, DisponibilitaForm, AssenzaForm
 class PrenotazioneAdmin(admin.ModelAdmin):
     # Usiamo il form personalizzato per le validazioni
     form = PrenotazioneForm 
-    list_display = ('id', 'paziente', 'terapeuta', 'data_ora', 'stato')
-    list_filter = ('terapeuta', 'stato')
+    list_display = ('id', 'paziente', 'terapeuta', 'data_ora')
+    list_filter = ('terapeuta',)
 
 class DisponibilitaAdmin(admin.ModelAdmin):
     # Colleghiamo il form di validazione

@@ -13,9 +13,8 @@ class Prenotazione(models.Model):
     # Rimosso unique=True per permettere a terapeuti diversi di lavorare allo stesso orario
     data_ora = models.DateTimeField() 
     durata_minuti = models.PositiveIntegerField(default=60)
+    letta_da_medico = models.BooleanField(default=False)
     
-    stato = models.CharField(max_length=20, default="Attesa", choices=[("Attesa", "Attesa"), ("Confermata", "Confermata"), ("Completata", "Completata"), ("Annullata", "Annullata")])
-
     def __str__(self):
         return f"Prenotazione {self.id} - Paziente: {self.paziente} | Terapeuta: {self.terapeuta} ({self.data_ora})"
 

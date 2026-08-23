@@ -2,37 +2,95 @@
 {% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/prenotazioni.css' %}?v=1">
+    <link rel="stylesheet" href="{% static 'css/prenotazioni.css' %}?v=3">
 {% endblock %}
 
 {% block contenuto %}
-<div class="prenotazioni-container">
-    <div class="header-sezione">
-        <h2>I Miei Appuntamenti</h2>
+<div class="prenotazioni-container" style="max-width: 800px; margin: 0 auto;">
+    
+    <div class="header-sezione" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>I Miei Colloqui</h2>
+        <span class="badge" style="background: #e2f0e6; color: #1f633d; font-size: 1rem;">
+            {% if tipo_utente == 'paziente' %}Area Paziente{% else %}Area Medico{% endif %}
+        </span>
     </div>
 
-    {% if prenotazioni %}
-        {% for p in prenotazioni %}
-            <div class="card-lista">
-                <div class="card-dettagli">
-                    <!-- Se l'utente è un Paziente vede il nome del medico, viceversa -->
-                    <strong>
-                        {% if request.user.paziente %}
-                            Dr. {{ p.terapeuta.user.last_name }}
+    <!-- SEZIONE 1: PROSSIMI APPUNTAMENTI -->
+    <h3 style="color: #2e8b57; border-bottom: 2px solid #e2f0e6; padding-bottom: 5px; margin-top: 30px;">In Programma</h3>
+    
+    {% if prossimi %}
+        <!-- Raggruppiamo per giorno esatto (data_ora.date estrae solo il giorno) -->
+        {% regroup prossimi by data_ora.date as sedute_per_giorno %}
+        
+        {% for gruppo in sedute_per_giorno %}
+            <!-- Intestazione del singolo giorno -->
+            <h4 class="header-data-gruppo">
+                📅 {{ gruppo.grouper|date:"l d F Y" }}
+            </h4>
+            
+            {% for appuntamento in gruppo.list %}
+                <div class="card-lista" style="margin-bottom: 12px; border-left: 5px solid #2e8b57; display: flex; justify-content: space-between; align-items: center;">
+                    <div class="card-dettagli">
+                        <strong style="font-size: 1.1em; color: #333;">
+                            Ore {{ appuntamento.data_ora|time:"H:i" }}
+                            
+                            <!-- IL PALLINO BLU DELLE NOTIFICHE -->
+                            <!-- IL BADGE DELLE NOTIFICHE -->
+                            {% if appuntamento.id in nuovi_id %}
+                                <span class="badge-nuova-notifica" title="Nuova prenotazione">
+                                    <span class="pallino-blu-interno"></span> Nuova
+                                </span>
+                            {% endif %}
+                        </strong>
+                        
+                        {% if tipo_utente == 'paziente' %}
+                            <span style="display: block; margin-top: 5px; color: #555;">🧑‍⚕️ <strong>Dott. {{ appuntamento.terapeuta.user.first_name }} {{ appuntamento.terapeuta.user.last_name }}</strong></span>
                         {% else %}
-                            Paziente: {{ p.paziente.user.first_name }} {{ p.paziente.user.last_name }}
+                            <span style="display: block; margin-top: 5px; color: #555;">👤 Paziente: <strong>{{ appuntamento.paziente.user.first_name }} {{ appuntamento.paziente.user.last_name }}</strong></span>
                         {% endif %}
-                    </strong>
-                    <span>📅 {{ p.data_ora|date:"d F Y, H:i" }} ({{ p.durata_minuti }} min)</span>
+                        
+                        <span style="font-size: 0.85em; color: #888; display: block; margin-top: 5px;">⏳ Durata: {{ appuntamento.durata_minuti }} min</span>
+                    </div>
+
+                    <div class="card-azioni">
+                        <form method="POST" action="#" onsubmit="return confirm('Sei sicuro di voler annullare questo appuntamento? L\'operazione è irreversibile.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-secondary-small" style="color: #d9534f; border-color: #d9534f;">Annulla</button>
+                        </form>
+                    </div>
                 </div>
-                <div>
-                    <!-- Renderizza la classe CSS in base allo stato in minuscolo -->
-                    <span class="badge {{ p.stato|lower }}">{{ p.stato }}</span>
-                </div>
-            </div>
+            {% endfor %}
         {% endfor %}
+        
     {% else %}
-        <p style="text-align: center; color: #666; padding: 20px;">Non ci sono appuntamenti in programma.</p>
+        <div style="text-align: center; padding: 30px; background: #f8f9fa; border-radius: 8px; color: #666;">
+            Nessun colloquio in programma.
+        </div>
     {% endif %}
+
+
+    <!-- SEZIONE 2: STORICO (PASSATI) -->
+    <h3 style="color: #666; border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 40px;">Storico Colloqui</h3>
+    
+    {% if passati %}
+        <div style="opacity: 0.75;"> <!-- Leggera trasparenza per indicare che sono passati -->
+            {% for appuntamento in passati %}
+                <div class="card-lista" style="margin-bottom: 10px; border-left: 5px solid #ccc; background: #fafafa;">
+                    <div class="card-dettagli">
+                        <strong>{{ appuntamento.data_ora|date:"d/m/Y" }} - {{ appuntamento.data_ora|time:"H:i" }}</strong>
+                        
+                        {% if tipo_utente == 'paziente' %}
+                            <span style="color: #555;">Dott. {{ appuntamento.terapeuta.user.last_name }}</span>
+                        {% else %}
+                            <span style="color: #555;">Paziente: {{ appuntamento.paziente.user.last_name }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="text-align: center; color: #888; font-size: 0.9em;">Non ci sono colloqui passati.</p>
+    {% endif %}
+
 </div>
 {% endblock %}

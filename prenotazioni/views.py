@@ -70,6 +70,7 @@ class AggiungiAssenzaView(LoginRequiredMixin, View):
         form = AssenzaForm(request.POST, terapeuta=request.user.terapeuta)
         if form.is_valid():
             form.save()
+            messages.success(request, "Assenza registrata con successo. Il calendario è stato bloccato.")
             return redirect('prenotazioni:assenza')  # Redirect to a success page or the same page
         return render(request, 'prenotazioni/assenza.html', {'form': form})
 
@@ -84,11 +85,19 @@ class VisualizzaPrenotazioniView(LoginRequiredMixin, View):
             return redirect('home')
         return render(request, 'prenotazioni/visualizza_prenotazioni.html', {'prenotazioni': prenotazioni})
 
-class VisualizzaDisponibilitaView(LoginRequiredMixin, View  ):
+class VisualizzaDisponibilitaView(LoginRequiredMixin, View):
     def get(self, request):
-        disponibilita = Disponibilita.objects.all()
-        return render(request, 'prenotazioni/visualizza_disponibilita.html', {'disponibilita': disponibilita})
+        if not hasattr(request.user, 'terapeuta'):
+            messages.error(request, "Accesso negato: non possiedi un profilo terapeuta.")
+            return redirect('home')
 
+        # 1. Filtriamo SOLO i turni del medico loggato (Sicurezza)
+        # 2. Li ordiniamo per giorno (0=Lunedì, 1=Martedì) e per orario (Fondamentale per il regroup)
+        disponibilita = Disponibilita.objects.filter(
+            terapeuta=request.user.terapeuta
+        ).order_by('giorno', 'ora_inizio')
+        return render(request, 'prenotazioni/visualizza_disponibilita.html', {'disponibilita': disponibilita})
+    
 class VisualizzaAssenzeView(LoginRequiredMixin, View):
     def get(self, request):
         assenze = Assenza.objects.all()
@@ -224,3 +233,63 @@ class CreaPrenotazioneVeloceView(LoginRequiredMixin, View):
         messages.success(request, f"Richiesta inviata! Attendi la conferma dal Dott. {terapeuta.user.last_name}.")
         return redirect('utenti:vetrina')
 
+class VisualizzaPrenotazioniView(LoginRequiredMixin, View):
+    def get(self, request):
+        ora_attuale = timezone.now()
+
+        if hasattr(request.user, 'paziente'):
+            # Logica Paziente
+            prossimi = Prenotazione.objects.filter(
+                paziente=request.user.paziente, data_ora__gte=ora_attuale
+            ).order_by('data_ora')
+            
+            passati = Prenotazione.objects.filter(
+                paziente=request.user.paziente, data_ora__lt=ora_attuale
+            ).order_by('-data_ora') # Ordinamento decrescente (i più recenti prima)
+            
+            tipo_utente = 'paziente'
+
+        elif hasattr(request.user, 'terapeuta'):
+            terapeuta = request.user.terapeuta
+            
+            # 1. Peschiamo quelle non lette
+            non_lette = Prenotazione.objects.filter(terapeuta=terapeuta, letta_da_medico=False)
+            conteggio_nuove = non_lette.count()
+            
+            # 2. TRUCCO: Salviamo gli ID delle nuove in una lista PRIMA di aggiornarle!
+            nuovi_id = list(non_lette.values_list('id', flat=True))
+            
+            if conteggio_nuove > 0:
+                if conteggio_nuove == 1:
+                    messages.info(request, "Hai 1 nuovo colloquio prenotato dall'ultima volta!")
+                else:
+                    messages.info(request, f"Hai {conteggio_nuove} nuovi colloqui prenotati!")
+                
+                # Le marchiamo tutte come lette
+                non_lette.update(letta_da_medico=True)
+
+            prossimi = Prenotazione.objects.filter(
+                terapeuta=terapeuta, data_ora__gte=ora_attuale
+            ).order_by('data_ora')
+            
+            passati = Prenotazione.objects.filter(
+                terapeuta=terapeuta, data_ora__lt=ora_attuale
+            ).order_by('-data_ora')
+            
+            tipo_utente = 'terapeuta'
+            
+        else:
+            messages.error(request, "Accesso negato: profilo non riconosciuto.")
+            return redirect('home')
+
+        # Se chi guarda è un paziente, non ci sono "nuovi_id", quindi passiamo una lista vuota
+        if tipo_utente == 'paziente':
+            nuovi_id = []
+
+        context = {
+            'prossimi': prossimi,
+            'passati': passati,
+            'tipo_utente': tipo_utente,
+            'nuovi_id': nuovi_id  # <--- AGGIUNGI QUESTA RIGA
+        }
+        return render(request, 'prenotazioni/visualizza_prenotazioni.html', context)

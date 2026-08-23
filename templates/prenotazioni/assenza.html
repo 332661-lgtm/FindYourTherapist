@@ -19,19 +19,30 @@
 
     <p style="color: #666; margin-bottom: 20px;">Blocca le prenotazioni per ferie o imprevisti.</p>
 
+    <!-- AGGIUNTO: Blocco per gli errori globali (es. se ci sono già appuntamenti in quelle date) -->
+    {% if form.non_field_errors %}
+        <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+            <strong>Attenzione:</strong> {{ form.non_field_errors|striptags }}
+        </div>
+    {% endif %}
+
     <form method="POST">
         {% csrf_token %}
         <div class="form-grid">
             <div class="form-group">
-                <label>Da (Data e Ora):</label>
-                {{ form.data_ora_inizio }}
-                {% if form.data_ora_inizio.errors %}<div class="error-text">{{ form.data_ora_inizio.errors|striptags }}</div>{% endif %}
+                <label>Da (Data):</label>
+                <!-- AGGIORNATO IL NOME DEL CAMPO -->
+                {{ form.data_inizio }}
+                {% if form.data_inizio.errors %}<div class="error-text">{{ form.data_inizio.errors|striptags }}</div>{% endif %}
             </div>
+            
             <div class="form-group">
-                <label>A (Data e Ora):</label>
-                {{ form.data_ora_fine }}
-                {% if form.data_ora_fine.errors %}<div class="error-text">{{ form.data_ora_fine.errors|striptags }}</div>{% endif %}
+                <label>A (Data):</label>
+                <!-- AGGIORNATO IL NOME DEL CAMPO -->
+                {{ form.data_fine }}
+                {% if form.data_fine.errors %}<div class="error-text">{{ form.data_fine.errors|striptags }}</div>{% endif %}
             </div>
+            
             <div class="form-group" style="grid-column: 1 / -1;">
                 <label>Motivazione (Opzionale):</label>
                 {{ form.motivazione }}
