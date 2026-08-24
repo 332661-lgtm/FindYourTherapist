@@ -68,11 +68,24 @@
     </aside>
 
     <!-- DESTRA: Risultati -->
+    <!-- DESTRA: Risultati -->
     <section class="risultati-container">
-        {% for terapeuta in terapeuti %}
+        
+        <!-- CAMBIO: Ora iteriamo su page_obj invece che su terapeuti -->
+        {% for terapeuta in page_obj %}
             <div class="terapeuta-card">
                 <div class="terapeuta-info">
-                    <h4>Dott. {{ terapeuta.user.first_name }} {{ terapeuta.user.last_name }}</h4>
+                    
+                    <!-- CORREZIONE: Aggiunto Flexbox all'h4 per allineare la spunta! -->
+                    <h4 style="display: flex; align-items: center; margin-bottom: 15px;">
+                        Dott. {{ terapeuta.user.first_name }} {{ terapeuta.user.last_name }}
+                        <!-- LA LOGICA DELLA SPUNTA -->
+                        {% if terapeuta.verified %}
+                            <span class="spunta-badge spunta-blu" title="Medico Verificato">✓</span>
+                        {% else %}
+                            <span class="spunta-badge spunta-grigia" title="Profilo Non Verificato">✓</span>
+                        {% endif %}
+                    </h4>
                     
                     <p><strong>Città:</strong> 
                         {% for studio in terapeuta.studi.all %}
@@ -114,6 +127,30 @@
                 <a href="{% url 'utenti:vetrina' %}" style="color: #2e8b57; font-weight: bold; text-decoration: none;">Mostra tutti i terapeuti</a>
             </div>
         {% endfor %}
+        
+        
+        <!-- I BOTTONI DI IMPAGINAZIONE -->
+        {% if page_obj.has_other_pages %}
+            <div class="paginazione-container" style="text-align: center; margin-top: 40px; padding: 20px; background: #fff; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                
+                {% if page_obj.has_previous %}
+                    <a href="?{{ url_params }}&page={{ page_obj.previous_page_number }}" class="btn-secondary-small" style="text-decoration: none;">
+                        &laquo; Precedente
+                    </a>
+                {% endif %}
+
+                <span style="margin: 0 20px; font-weight: bold; color: #555;">
+                    Pagina {{ page_obj.number }} di {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?{{ url_params }}&page={{ page_obj.next_page_number }}" class="btn-secondary-small" style="text-decoration: none;">
+                        Successiva &raquo;
+                    </a>
+                {% endif %}
+
+            </div>
+        {% endif %}
     </section>
 </div>
 

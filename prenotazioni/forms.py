@@ -76,18 +76,22 @@ class AssenzaForm(forms.ModelForm):
             self.instance.terapeuta = terapeuta
 
 # IL FORM PER LA MODIFICA SEMPLICE DA PARTE DEL MEDICO
+# IL FORM PER LA MODIFICA SEMPLICE DA PARTE DEL MEDICO
 class ModificaPrenotazioneForm(forms.ModelForm):
     class Meta:
         model = Prenotazione
         fields = ['data_ora']
         widgets = {
-            'data_ora': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            # step=1800 forza la finestrella del browser a mostrare solo orari di 30 in 30
+            'data_ora': forms.DateTimeInput(attrs={'type': 'datetime-local', 'step': '1800'}),
         }
 
     def clean_data_ora(self):
         data_ora = self.cleaned_data.get('data_ora')
-        if data_ora.minute != 0:
-            raise ValidationError("I colloqui possono essere fissati solo a ore intere (es. 15:00, 16:00).")
+        
+        # PERMETTIAMO SIA L'ORA ESATTA (0) CHE LA MEZZ'ORA (30)
+        if data_ora.minute not in [0, 30]:
+            raise ValidationError("Gli orari possono essere scelti solo a scatti di mezz'ora (es. 15:00, 15:30).")
         
         sovrapposizioni = Prenotazione.objects.filter(
             terapeuta=self.instance.terapeuta,
@@ -96,6 +100,6 @@ class ModificaPrenotazioneForm(forms.ModelForm):
         ).exclude(pk=self.instance.pk)
         
         if sovrapposizioni.exists():
-            raise ValidationError("Attenzione: hai già un altro colloquio in programma in questo orario.")
+            raise ValidationError("Attenzione: hai già un altro colloquio in programma in questo orario. Scegli un'altra fascia.")
         
         return data_ora

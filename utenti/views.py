@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views import View
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.contrib import messages
 from .forms import RegistrazionePazienteForm, RegistrazioneTerapeutaForm
@@ -100,8 +101,20 @@ class VetrinaTerapeutiView(View):
         specializzazioni = Specializzazione.objects.all()
         citta_disponibili = Studio.objects.values_list('citta', flat=True).distinct()
 
+        # 1. Suddividiamo a gruppi di 50
+        paginator = Paginator(terapeuti, 50)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        # 2. Salviamo gli attuali filtri di ricerca rimuovendo 'page' per non duplicarlo
+        query_dict = request.GET.copy()
+        if 'page' in query_dict:
+            del query_dict['page']
+        url_params = query_dict.urlencode()
+
         context = {
-            'terapeuti': terapeuti,
+            'page_obj': page_obj,  
+            'url_params': url_params,
             'specializzazioni': specializzazioni,
             'citta_disponibili': citta_disponibili,
             'valori_scelti': {

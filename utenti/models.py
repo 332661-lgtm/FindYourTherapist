@@ -30,6 +30,7 @@ class Paziente(models.Model):
     data_nascita = models.DateField(blank=True, null=True)
     numero_telefono = models.CharField(max_length=15, blank=True, null=True)
     indirizzo = models.CharField(max_length=200, blank=True, null=True)
+    CF = models.CharField(max_length=16, blank=True, null=True)  # Codice Fiscale
 
     def __str__(self):
         # I nomi e cognomi ora li peschiamo dal modello User di Django
@@ -54,6 +55,8 @@ class Terapeuta(models.Model):
     prezzo = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
     descrizione = models.TextField(blank=True, null=True)
     specializzazioni = models.ManyToManyField(Specializzazione, related_name='terapeuti', blank=True)
+    pec = models.EmailField(max_length=254, blank=True, null=True)  # PEC del terapeuta
+    verified = models.BooleanField(default=False)  # Campo per indicare se il terapeuta è verificato
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"

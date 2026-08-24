@@ -12,7 +12,16 @@
     
     <!-- CARD PROFILO DEL MEDICO -->
     <div class="terapeuta-card">
-        <h2>Dott. {{ terapeuta.user.first_name }} {{ terapeuta.user.last_name }}</h2>
+        <h2>Dott. {{ terapeuta.user.first_name }} {{ terapeuta.user.last_name }}
+
+        <!-- LA LOGICA DELLA SPUNTA -->
+        {% if terapeuta.verified %}
+            <span class="spunta-badge spunta-blu" title="Medico Verificato">✓</span>
+        {% else %}
+            <span class="spunta-badge spunta-grigia" title="Profilo Non Verificato">✓</span>
+        {% endif %}
+        </h2>
+        
         <p><strong>Prezzo a seduta:</strong> € {{ terapeuta.prezzo|default:"Da concordare" }}</p>
         
         <div style="margin: 10px 0;">

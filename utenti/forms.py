@@ -88,23 +88,25 @@ class UserUpdateForm(forms.ModelForm):
 class PazienteUpdateForm(forms.ModelForm):
     class Meta:
         model = Paziente
-        fields = ['numero_telefono', 'data_nascita', 'indirizzo']
+        fields = ['numero_telefono', 'data_nascita', 'indirizzo', 'CF']
         widgets = {
             'data_nascita': forms.DateInput(attrs={'type': 'date'})
         }
         labels = {
             'numero_telefono': 'Numero di telefono',
             'data_nascita': 'Data di nascita',
-            'indirizzo': 'Indirizzo completo'
+            'indirizzo': 'Indirizzo di residenza',
+            'CF': 'Codice Fiscale'
         }
 
 class TerapeutaUpdateForm(forms.ModelForm):
     
     class Meta:
         model = Terapeuta
-        fields = ['numero_telefono', 'prezzo', 'descrizione', 'studi', 'specializzazioni']
+        fields = ['numero_telefono', 'prezzo', 'descrizione', 'studi', 'specializzazioni', 'pec']
         labels = {
             'numero_telefono': 'Numero di telefono',
+            'pec': 'PEC',
             'prezzo': 'Prezzo a seduta (€)',
             'descrizione': 'Descrizione / Biografia',
             'studi': 'I tuoi studi attuali',

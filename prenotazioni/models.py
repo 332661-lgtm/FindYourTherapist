@@ -10,6 +10,8 @@ class Prenotazione(models.Model):
     data_ora = models.DateTimeField() 
     durata_minuti = models.PositiveIntegerField(default=60)
     letta_da_medico = models.BooleanField(default=False)
+    nascosta_paziente = models.BooleanField(default=False)
+    nascosta_terapeuta = models.BooleanField(default=False)
     
     STATO_CHOICES = [
         ('in_programma', 'In Programma'),

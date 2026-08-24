@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/prenotazioni.css' %}">{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/prenotazioni.css' %}">
+{% endblock %}
 
 {% block contenuto %}
 <div class="prenotazioni-container" style="max-width: 500px; margin: 0 auto;">
@@ -24,7 +27,11 @@
         <div class="form-group" style="margin-bottom: 20px;">
             <label>Nuova Data e Ora</label>
             {{ form.data_ora }}
-            {% if form.data_ora.errors %}<div class="error-text">{{ form.data_ora.errors|striptags }}</div>{% endif %}
+            {% if form.data_ora.errors %}
+                <div class="error-text" style="color: #d9534f; margin-top: 5px; font-size: 0.9em;">
+                    {{ form.data_ora.errors|striptags }}
+                </div>
+            {% endif %}
         </div>
         
         <div style="display: flex; gap: 15px;">
@@ -33,4 +40,9 @@
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Richiamiamo il file JS esterno separato -->
+    <script src="{% static 'js/modifica_prenotazione.js' %}?v=1"></script>
 {% endblock %}

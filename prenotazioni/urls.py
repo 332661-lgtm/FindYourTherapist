@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import (
-    AggiungiPrenotazioneView, AggiungiDisponibilitaView, AggiungiAssenzaView,
+    AggiungiPrenotazioneView, AggiungiDisponibilitaView, AggiungiAssenzaView, NascondiPrenotazioneView,
     OttieniSlotAPIView, VisualizzaPrenotazioniView, VisualizzaDisponibilitaView,
     EliminaDisponibilitaView, ProfiloPrenotaView, CreaPrenotazioneVeloceView,
     EliminaPrenotazioneView, ModificaPrenotazioneView
@@ -24,4 +24,5 @@ urlpatterns = [
     path('prenota/<int:terapeuta_id>/', ProfiloPrenotaView.as_view(), name='profilo_prenota'),
     path('api/slot-liberi/', OttieniSlotAPIView.as_view(), name='api_slot_liberi'),
     path('conferma-veloce/', CreaPrenotazioneVeloceView.as_view(), name='crea_prenotazione_veloce'),
+    path('nascondi-prenotazione/<int:pk>/', NascondiPrenotazioneView.as_view(), name='nascondi_prenotazione'),
 ]

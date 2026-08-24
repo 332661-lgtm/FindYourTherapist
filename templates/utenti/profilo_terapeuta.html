@@ -44,6 +44,14 @@
         </div>
         
         <div class="profilo-row">
+            <label>{{ terapeuta_form.pec.label }}</label>
+            <div class="input-box">
+                {{ terapeuta_form.pec }}
+                {% if terapeuta_form.pec.errors %}<span class="error-text">{{ terapeuta_form.pec.errors|striptags }}</span>{% endif %}
+            </div>
+        </div>
+
+        <div class="profilo-row">
             <label>{{ terapeuta_form.prezzo.label }}</label>
             <div class="input-box">
                 {{ terapeuta_form.prezzo }}

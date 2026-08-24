@@ -71,37 +71,42 @@
         </div>
     {% endif %}
 
-
-    <!-- SEZIONE 2: STORICO (PASSATI) -->
-    <h3 style="color: #666; border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 40px;">Storico Colloqui</h3>
-    
-    {% if passati %}
-        <div style="opacity: 0.75;"> <!-- Leggera trasparenza per indicare che sono passati -->
-            {% for appuntamento in passati %}
-                <div class="card-lista" style="margin-bottom: 10px; border-left: 5px solid #ccc; background: #fafafa;">
-                    <div class="card-dettagli">
-                        <strong>{{ appuntamento.data_ora|date:"d/m/Y" }} - {{ appuntamento.data_ora|time:"H:i" }}</strong>
-                        
-                        {% if tipo_utente == 'paziente' %}
-                            <span style="color: #555;">Dott. {{ appuntamento.terapeuta.user.last_name }}</span>
-                        {% else %}
-                            <span style="color: #555;">Paziente: {{ appuntamento.paziente.user.last_name }}</span>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endfor %}
+    <!-- SEZIONE 2: STORICO (PASSATI) A SCOMPARSA (SOLO PAZIENTE) -->
+    {% if tipo_utente == 'paziente' %}
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 40px; border-bottom: 2px solid #eee; padding-bottom: 5px;">
+            <h3 style="color: #666; margin: 0;">Storico Colloqui</h3>
+            <!-- Il bottone magico -->
+            <button id="btn-toggle-storico" class="btn-secondary-small" style="background: none; color: #007bff; border: 1px solid #007bff; padding: 5px 15px; border-radius: 20px; cursor: pointer;">
+                + Mostra effettuati
+            </button>
         </div>
-    {% else %}
-        <p style="text-align: center; color: #888; font-size: 0.9em;">Non ci sono colloqui passati.</p>
+        
+        <!-- Questo box è nascosto di default e ha lo scroll interno -->
+        <div id="box-storico" style="max-height: 350px; overflow-y: auto; padding-right: 10px; display: none; margin-top: 15px;">
+            {% if passati %}
+                <div style="opacity: 0.75;">
+                    {% for appuntamento in passati %}
+                        <div class="card-lista" style="margin-bottom: 10px; border-left: 5px solid #ccc; background: #fafafa;">
+                            <div class="card-dettagli">
+                                <strong>{{ appuntamento.data_ora|date:"d/m/Y" }} - {{ appuntamento.data_ora|time:"H:i" }}</strong>
+                                <span style="color: #555; display: block;">Dott. {{ appuntamento.terapeuta.user.last_name }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="text-align: center; color: #888; font-size: 0.9em;">Non ci sono colloqui passati.</p>
+            {% endif %}
+        </div>
     {% endif %}
+
 
     <!-- SEZIONE 3: CANCELLATI -->
     <h3 style="color: #d9534f; border-bottom: 2px solid #f5c6cb; padding-bottom: 5px; margin-top: 40px;">Colloqui Annullati</h3>
-    
     {% if cancellati %}
         <div style="opacity: 0.7;"> 
             {% for appuntamento in cancellati %}
-                <div class="card-lista" style="margin-bottom: 10px; border-left: 5px solid #d9534f; background: #fff5f5;">
+                <div class="card-lista" style="margin-bottom: 10px; border-left: 5px solid #d9534f; background: #fff5f5; display: flex; justify-content: space-between; align-items: center;">
                     <div class="card-dettagli">
                         <strong style="text-decoration: line-through; color: #555;">{{ appuntamento.data_ora|date:"d/m/Y" }} - {{ appuntamento.data_ora|time:"H:i" }}</strong>
                         <span style="color: #d9534f; font-weight: bold; margin-left: 10px;">ANNULLATO</span>
@@ -112,12 +117,42 @@
                             <span style="color: #666; display: block;">Paziente: {{ appuntamento.paziente.user.last_name }}</span>
                         {% endif %}
                     </div>
+                    
+                    <div class="card-azioni">
+                        <form method="POST" action="{% url 'prenotazioni:nascondi_prenotazione' appuntamento.id %}">
+                            {% csrf_token %}
+                            <button type="submit" style="background: none; border: none; color: #888; cursor: pointer; font-size: 1.2em; padding: 5px 10px;" title="Rimuovi dall'elenco">
+                                ✖
+                            </button>
+                        </form>
+                    </div>
                 </div>
             {% endfor %}
         </div>
     {% else %}
         <p style="text-align: center; color: #888; font-size: 0.9em;">Nessun colloquio annullato.</p>
     {% endif %}
-
 </div>
+{% endblock %}
+
+<!-- AGGIUNGI QUESTO SCRIPT IN FONDO AL FILE (PRIMA DELLA FINE) -->
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const btnStorico = document.getElementById('btn-toggle-storico');
+        const boxStorico = document.getElementById('box-storico');
+
+        if (btnStorico && boxStorico) {
+            btnStorico.addEventListener('click', function() {
+                if (boxStorico.style.display === 'none') {
+                    boxStorico.style.display = 'block';
+                    this.innerHTML = '- Nascondi effettuati';
+                } else {
+                    boxStorico.style.display = 'none';
+                    this.innerHTML = '+ Mostra effettuati';
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

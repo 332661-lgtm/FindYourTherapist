@@ -75,8 +75,8 @@ class VisualizzaPrenotazioniView(LoginRequiredMixin, View):
 
         if hasattr(request.user, 'paziente'):
             prossimi = Prenotazione.objects.filter(paziente=request.user.paziente, data_ora__gte=ora_attuale, stato='in_programma').order_by('data_ora')
-            passati = Prenotazione.objects.filter(paziente=request.user.paziente, data_ora__lt=ora_attuale, stato='in_programma').order_by('-data_ora')
-            cancellati = Prenotazione.objects.filter(paziente=request.user.paziente, stato='cancellata').order_by('-data_ora')
+            passati = Prenotazione.objects.filter(paziente=request.user.paziente, data_ora__lt=ora_attuale, stato='in_programma',).order_by('-data_ora')
+            cancellati = Prenotazione.objects.filter(paziente=request.user.paziente, stato='cancellata', nascosta_paziente=False).order_by('-data_ora')
             tipo_utente = 'paziente'
             nuovi_id = []
 
@@ -93,7 +93,7 @@ class VisualizzaPrenotazioniView(LoginRequiredMixin, View):
 
             prossimi = Prenotazione.objects.filter(terapeuta=terapeuta, data_ora__gte=ora_attuale, stato='in_programma').order_by('data_ora')
             passati = Prenotazione.objects.filter(terapeuta=terapeuta, data_ora__lt=ora_attuale, stato='in_programma').order_by('-data_ora')
-            cancellati = Prenotazione.objects.filter(terapeuta=terapeuta, stato='cancellata').order_by('-data_ora')
+            cancellati = Prenotazione.objects.filter(terapeuta=terapeuta, stato='cancellata', nascosta_terapeuta=False).order_by('-data_ora')
             tipo_utente = 'terapeuta'
             
         else:
@@ -250,3 +250,17 @@ class ModificaPrenotazioneView(LoginRequiredMixin, View):
             return redirect('prenotazioni:visualizza_prenotazioni')
             
         return render(request, 'prenotazioni/modifica_prenotazione.html', {'form': form, 'prenotazione': prenotazione})
+
+class NascondiPrenotazioneView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        prenotazione = get_object_or_404(Prenotazione, pk=pk)
+        
+        if hasattr(request.user, 'paziente') and prenotazione.paziente == request.user.paziente:
+            prenotazione.nascosta_paziente = True
+            prenotazione.save()
+            
+        elif hasattr(request.user, 'terapeuta') and prenotazione.terapeuta == request.user.terapeuta:
+            prenotazione.nascosta_terapeuta = True
+            prenotazione.save()
+            
+        return redirect('prenotazioni:visualizza_prenotazioni')
