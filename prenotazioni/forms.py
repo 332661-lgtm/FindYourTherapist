@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from prenotazioni.models import Prenotazione, Disponibilita, Assenza
 from django.utils import timezone
 
@@ -34,14 +35,12 @@ class DisponibilitaForm(forms.ModelForm):
             'ora_fine': forms.TimeInput(attrs={'type': 'time'}),
         }
 
-    # Questo metodo intercetta il terapeuta che gli abbiamo passato dalla View
     def __init__(self, *args, **kwargs):
         terapeuta = kwargs.pop('terapeuta', None)
         super().__init__(*args, **kwargs)
         if terapeuta:
-            # MAGIA: Limitiamo il menu a tendina solo agli studi del medico loggato
             self.fields['studio'].queryset = terapeuta.studi.all()
-            self.instance.terapeuta = terapeuta  # Imposta il terapeuta dell'istanza del form
+            self.instance.terapeuta = terapeuta
 
     def clean(self):
         dati_puliti = super().clean()
@@ -55,17 +54,14 @@ class DisponibilitaForm(forms.ModelForm):
 class AssenzaForm(forms.ModelForm):
     class Meta:
         model = Assenza
-        # 1. Nomi aggiornati qui
         fields = ['data_inizio', 'data_fine', 'motivazione']
         widgets = {
-            # 2. Nomi aggiornati e widget impostato su 'date'
             'data_inizio': forms.DateInput(attrs={'type': 'date'}),
             'data_fine': forms.DateInput(attrs={'type': 'date'}),
         }
 
     def clean(self):
         dati_puliti = super().clean()
-        # 3. Nomi aggiornati anche nei controlli
         data_inizio = dati_puliti.get('data_inizio')
         data_fine = dati_puliti.get('data_fine')
 
@@ -77,4 +73,29 @@ class AssenzaForm(forms.ModelForm):
         terapeuta = kwargs.pop('terapeuta', None)
         super().__init__(*args, **kwargs)
         if terapeuta:
-            self.instance.terapeuta = terapeuta  # Imposta il terapeuta dell'istanza del form
+            self.instance.terapeuta = terapeuta
+
+# IL FORM PER LA MODIFICA SEMPLICE DA PARTE DEL MEDICO
+class ModificaPrenotazioneForm(forms.ModelForm):
+    class Meta:
+        model = Prenotazione
+        fields = ['data_ora']
+        widgets = {
+            'data_ora': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
+
+    def clean_data_ora(self):
+        data_ora = self.cleaned_data.get('data_ora')
+        if data_ora.minute != 0:
+            raise ValidationError("I colloqui possono essere fissati solo a ore intere (es. 15:00, 16:00).")
+        
+        sovrapposizioni = Prenotazione.objects.filter(
+            terapeuta=self.instance.terapeuta,
+            data_ora=data_ora,
+            stato='in_programma'
+        ).exclude(pk=self.instance.pk)
+        
+        if sovrapposizioni.exists():
+            raise ValidationError("Attenzione: hai già un altro colloquio in programma in questo orario.")
+        
+        return data_ora

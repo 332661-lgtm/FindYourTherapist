@@ -1,19 +1,21 @@
 from datetime import timedelta
 from django.db import models
 from django.core.exceptions import ValidationError
-from utenti.models import Paziente, Terapeuta
-from django.core.exceptions import ValidationError
 from django.db.models import Q
 
 class Prenotazione(models.Model):
-    # L'ID auto-incrementante viene generato automaticamente da Django, non serve scriverlo.
     paziente = models.ForeignKey('utenti.Paziente', on_delete=models.CASCADE, related_name='prenotazioni')
     terapeuta = models.ForeignKey('utenti.Terapeuta', on_delete=models.CASCADE, related_name='prenotazioni')
     
-    # Rimosso unique=True per permettere a terapeuti diversi di lavorare allo stesso orario
     data_ora = models.DateTimeField() 
     durata_minuti = models.PositiveIntegerField(default=60)
     letta_da_medico = models.BooleanField(default=False)
+    
+    STATO_CHOICES = [
+        ('in_programma', 'In Programma'),
+        ('cancellata', 'Cancellata'),
+    ]
+    stato = models.CharField(max_length=20, choices=STATO_CHOICES, default='in_programma')
     
     def __str__(self):
         return f"Prenotazione {self.id} - Paziente: {self.paziente} | Terapeuta: {self.terapeuta} ({self.data_ora})"
@@ -22,17 +24,18 @@ class Prenotazione(models.Model):
         verbose_name = "Prenotazione"
         verbose_name_plural = "Prenotazioni"
         ordering = ['data_ora']
-        # Questo vincolo impedisce le sovrapposizioni per lo stesso terapeuta
         constraints = [
             models.UniqueConstraint(fields=['terapeuta', 'data_ora'], name='unica_seduta_terapeuta')
         ]
 
     def clean(self):
-        # 1. Controllo sovrapposizioni per il Terapeuta
         data_fine_scelta = self.data_ora + timedelta(minutes=self.durata_minuti)
+        
+        # 1. Controllo sovrapposizioni per il Terapeuta
         prenotazioni_esistenti = Prenotazione.objects.filter(
             terapeuta=self.terapeuta,
-            data_ora__date=self.data_ora.date()
+            data_ora__date=self.data_ora.date(),
+            stato='in_programma'
         )
         if self.pk:
             prenotazioni_esistenti = prenotazioni_esistenti.exclude(pk=self.pk)
@@ -46,7 +49,8 @@ class Prenotazione(models.Model):
         # 2. Controllo sovrapposizioni per il Paziente
         prenotazioni_paziente = Prenotazione.objects.filter(
             paziente=self.paziente,
-            data_ora__date=self.data_ora.date()
+            data_ora__date=self.data_ora.date(),
+            stato='in_programma'
         )
         if self.pk:
             prenotazioni_paziente = prenotazioni_paziente.exclude(pk=self.pk)
@@ -58,18 +62,10 @@ class Prenotazione(models.Model):
                 raise ValidationError("Hai già prenotato una seduta in questo orario.")
 
 class Disponibilita(models.Model):
-    
     GIORNI_SETTIMANA = [
-        (0, 'Lunedì'),
-        (1, 'Martedì'),
-        (2, 'Mercoledì'),
-        (3, 'Giovedì'),
-        (4, 'Venerdì'),
-        (5, 'Sabato'),
-        (6, 'Domenica'),
+        (0, 'Lunedì'), (1, 'Martedì'), (2, 'Mercoledì'),
+        (3, 'Giovedì'), (4, 'Venerdì'), (5, 'Sabato'), (6, 'Domenica'),
     ]
-
-    # Collegamento al terapeuta (usa la stringa 'utenti.Terapeuta' per evitare import circolari)
     terapeuta = models.ForeignKey('utenti.Terapeuta', on_delete=models.CASCADE, related_name='disponibilita')
     studio = models.ForeignKey('utenti.Studio', on_delete=models.CASCADE, related_name='disponibilita', default=None)
     giorno = models.IntegerField(choices=GIORNI_SETTIMANA)
@@ -80,7 +76,6 @@ class Disponibilita(models.Model):
         verbose_name = "Disponibilità"
         verbose_name_plural = "Disponibilità"
         ordering = ['giorno', 'ora_inizio']
-        # Evita che il terapeuta inserisca due volte lo stesso orario nello stesso giorno
         constraints = [
             models.UniqueConstraint(fields=['terapeuta', 'studio', 'giorno', 'ora_inizio', 'ora_fine'], name='unica_disponibilita')
         ]
@@ -89,39 +84,27 @@ class Disponibilita(models.Model):
         return f"{self.terapeuta} - {self.get_giorno_display()}: {self.ora_inizio} - {self.ora_fine}"
 
     def clean(self):
-        # Eseguiamo i controlli matematici SOLO se il Form non li ha cancellati!
         if self.ora_inizio and self.ora_fine:
-            # Impediamo l'inserimento di minuti (multipli di 1 ora)
             if self.ora_inizio.minute != 0:
                 raise ValidationError({'ora_inizio': "L'orario di inizio deve essere un'ora esatta (es. 09:00, 10:00)."})
-            
             if self.ora_fine.minute != 0:
                 raise ValidationError({'ora_fine': "L'orario di fine deve essere un'ora esatta (es. 10:00, 11:00)."})
-            # 1. Controllo base: l'ora di inizio deve precedere l'ora di fine
             if self.ora_inizio >= self.ora_fine:
                 raise ValidationError("L'orario di inizio deve essere precedente all'orario di fine.")
 
-            # 2. Controllo sovrapposizioni
             sovrapposizioni = Disponibilita.objects.filter(
-                terapeuta=self.terapeuta,
-                giorno=self.giorno
-            ).filter(
-                Q(ora_inizio__lt=self.ora_fine) & Q(ora_fine__gt=self.ora_inizio)
-            )
-
-            # Se stiamo modificando un record esistente, lo escludiamo dalla ricerca
+                terapeuta=self.terapeuta, giorno=self.giorno
+            ).filter(Q(ora_inizio__lt=self.ora_fine) & Q(ora_fine__gt=self.ora_inizio))
+            
             if self.pk:
                 sovrapposizioni = sovrapposizioni.exclude(pk=self.pk)
-
             if sovrapposizioni.exists():
                 raise ValidationError("Questa fascia oraria si sovrappone a una disponibilità già esistente per questo giorno.")
 
 class Assenza(models.Model):
     terapeuta = models.ForeignKey('utenti.Terapeuta', on_delete=models.CASCADE, related_name='assenze')
-    # 1. Diventano DateField
     data_inizio = models.DateField(default=None)
     data_fine = models.DateField(default=None)
-    
     motivazione = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
@@ -130,27 +113,20 @@ class Assenza(models.Model):
         ordering = ['data_inizio']
 
     def clean(self):
-        from django.core.exceptions import ValidationError
-        from prenotazioni.models import Prenotazione
-        
-        # Uso > e non >= così un medico può prendere un solo giorno di ferie (inizio=10, fine=10)
         if self.data_inizio and self.data_fine and self.data_inizio > self.data_fine:
             raise ValidationError("La data di fine non può essere precedente alla data di inizio.")
-
-        # Se i dati sono invalidi o vuoti, ci fermiamo qui per evitare crash
         if not self.data_inizio or not self.data_fine:
             return
 
-        # 2. Controllo contro il campo data_ora__date del modello Prenotazione
         prenotazioni_esistenti = Prenotazione.objects.filter(
             terapeuta=self.terapeuta,
             data_ora__date__gte=self.data_inizio,
-            data_ora__date__lte=self.data_fine
+            data_ora__date__lte=self.data_fine,
+            stato='in_programma'
         )
-        
         if prenotazioni_esistenti.exists():
             p = prenotazioni_esistenti.first()
-            raise ValidationError(f"Non puoi segnare un'assenza in questo periodo: hai già una seduta fissata il {p.data_ora.strftime('%d/%m/%Y alle %H:%M')}.")
+            raise ValidationError(f"Non puoi segnare un'assenza: hai già una seduta fissata il {p.data_ora.strftime('%d/%m/%Y alle %H:%M')}.")
 
     def __str__(self):
         return f"Assenza {self.terapeuta}: dal {self.data_inizio.strftime('%d/%m/%Y')} al {self.data_fine.strftime('%d/%m/%Y')}"

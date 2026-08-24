@@ -52,8 +52,11 @@
                         <span style="font-size: 0.85em; color: #888; display: block; margin-top: 5px;">⏳ Durata: {{ appuntamento.durata_minuti }} min</span>
                     </div>
 
-                    <div class="card-azioni">
-                        <form method="POST" action="#" onsubmit="return confirm('Sei sicuro di voler annullare questo appuntamento? L\'operazione è irreversibile.');">
+                    <div class="card-azioni" style="display: flex; gap: 10px;">
+                        {% if tipo_utente == 'terapeuta' %}
+                            <a href="{% url 'prenotazioni:modifica_prenotazione' appuntamento.id %}" class="btn-secondary-small" style="color: #007bff; border-color: #007bff; text-decoration: none; padding: 10px 15px; font-weight: bold; border-radius: 4px; border: 1px solid; display: inline-block;">Modifica</a>
+                        {% endif %}
+                        <form method="POST" action="{% url 'prenotazioni:elimina_prenotazione' appuntamento.id %}" onsubmit="return confirm('Sei sicuro di voler annullare questo appuntamento?');">
                             {% csrf_token %}
                             <button type="submit" class="btn-secondary-small" style="color: #d9534f; border-color: #d9534f;">Annulla</button>
                         </form>
@@ -90,6 +93,30 @@
         </div>
     {% else %}
         <p style="text-align: center; color: #888; font-size: 0.9em;">Non ci sono colloqui passati.</p>
+    {% endif %}
+
+    <!-- SEZIONE 3: CANCELLATI -->
+    <h3 style="color: #d9534f; border-bottom: 2px solid #f5c6cb; padding-bottom: 5px; margin-top: 40px;">Colloqui Annullati</h3>
+    
+    {% if cancellati %}
+        <div style="opacity: 0.7;"> 
+            {% for appuntamento in cancellati %}
+                <div class="card-lista" style="margin-bottom: 10px; border-left: 5px solid #d9534f; background: #fff5f5;">
+                    <div class="card-dettagli">
+                        <strong style="text-decoration: line-through; color: #555;">{{ appuntamento.data_ora|date:"d/m/Y" }} - {{ appuntamento.data_ora|time:"H:i" }}</strong>
+                        <span style="color: #d9534f; font-weight: bold; margin-left: 10px;">ANNULLATO</span>
+                        
+                        {% if tipo_utente == 'paziente' %}
+                            <span style="color: #666; display: block;">Dott. {{ appuntamento.terapeuta.user.last_name }}</span>
+                        {% else %}
+                            <span style="color: #666; display: block;">Paziente: {{ appuntamento.paziente.user.last_name }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="text-align: center; color: #888; font-size: 0.9em;">Nessun colloquio annullato.</p>
     {% endif %}
 
 </div>
