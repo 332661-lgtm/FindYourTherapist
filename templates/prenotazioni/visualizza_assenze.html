@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/prenotazioni.css' %}?v=1">
+{% endblock %}
+
+{% block contenuto %}
+<div class="prenotazioni-container">
+    <div class="header-sezione">
+        <h2>Gestione Calendario</h2>
+    </div>
+
+    <!-- TABS MENU -->
+    <div class="tabs-menu">
+        <a href="{% url 'prenotazioni:visualizza_disponibilita' %}" class="tab-link">I Miei Turni</a>
+        <a href="{% url 'prenotazioni:disponibilita' %}" class="tab-link">Aggiungi Turno</a>
+        <a href="{% url 'prenotazioni:visualizza_assenze' %}" class="tab-link attivo">Le Mie Assenze</a>
+        <a href="{% url 'prenotazioni:assenza' %}" class="tab-link">Registra Assenza</a>
+    </div>
+
+    <p style="color: #666; margin-bottom: 20px;">Storico dei tuoi periodi di ferie o indisponibilità.</p>
+
+    {% if assenze %}
+        <div style="display: grid; gap: 15px;">
+            {% for assenza in assenze %}
+                <div class="card-lista" style="border-left: 5px solid #f0ad4e; display: flex; justify-content: space-between; align-items: center; background: #fffdfa; padding: 15px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <div class="card-dettagli">
+                        <strong style="font-size: 1.1em; color: #333;">
+                            Dal {{ assenza.data_inizio|date:"d M Y" }} al {{ assenza.data_fine|date:"d M Y" }}
+                        </strong>
+                        
+                        {% if assenza.motivazione %}
+                            <span style="display: block; margin-top: 5px; color: #666; font-size: 0.9em;">
+                                📝 Motivazione: {{ assenza.motivazione }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-azioni">
+                        <form method="POST" action="{% url 'prenotazioni:elimina_assenza' assenza.id %}" onsubmit="return confirm('Sicuro di voler annullare questa assenza? Le prenotazioni per queste date torneranno ad essere aperte ai pazienti.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-secondary-small" style="color: #d9534f; border-color: #d9534f; cursor: pointer;">Sblocca Date</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="background: white; padding: 30px; border-radius: 8px; text-align: center; color: #666; border: 1px dashed #ccc;">
+            Nessuna assenza registrata al momento.
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

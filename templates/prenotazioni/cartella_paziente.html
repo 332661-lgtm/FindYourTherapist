@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <!-- Riusiamo lo stesso identico CSS del medico per mantenere la coerenza visiva! -->
+    <link rel="stylesheet" href="{% static 'css/lista_pazienti.css' %}?v=1">
+{% endblock %}
+
+{% block contenuto %}
+<div class="prenotazioni-container" style="max-width: 900px; margin: 0 auto;">
+    
+    <div class="header-sezione">
+        <h2>I Miei Documenti</h2>
+        <p style="color: #666;">Consulta i referti e condividi file con i tuoi specialisti.</p>
+    </div>
+
+    {% if relazioni %}
+        {% for rel in relazioni %}
+            <details style="margin-bottom: 15px;">
+                <!-- INTESTAZIONE TERAPEUTA -->
+                <summary style="font-size: 1.1em; background-color: #f4f8fb; border-left: 4px solid #007bff;">
+                    🧑‍⚕️ Dott. {{ rel.terapeuta.user.first_name }} {{ rel.terapeuta.user.last_name }}
+                </summary>
+                
+                <div class="details-content" style="background-color: #fff;">
+                    
+                    {% if rel.cartella_condivisa %}
+                        
+                        <!-- FILE NELLA CARTELLA PRINCIPALE -->
+                        {% for doc in rel.cartella_condivisa.documenti.all %}
+                            <div class="colloquio-item" style="align-items: center; background: #fdfdfd; padding: 10px; border-radius: 6px; border: 1px solid #eee; margin-bottom: 5px;">
+                                <div>
+                                    📄 <a href="{{ doc.file.url }}" target="_blank" style="text-decoration: none; color: #007bff; font-weight:bold;">{{ doc.nome_originale }}</a>
+                                    <div style="font-size: 0.75em; color: #666; margin-top: 4px;">
+                                        Caricato da {% if doc.caricato_da == request.user %}<strong>Te</strong>{% else %}{{ doc.caricato_da.first_name }}{% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- IL PAZIENTE PUÒ ELIMINARE SOLO I PROPRI FILE -->
+                                {% if doc.caricato_da == request.user %}
+                                    <button class="btn-elimina-file" data-doc-id="{{ doc.id }}" style="background: none; border: none; color: #d9534f; cursor: pointer; font-size: 1.2em;" title="Elimina file">🗑️</button>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        <!-- SOTTOCARTELLE CONDIVISE DAL MEDICO -->
+                        {% for cartella in rel.cartella_condivisa.sottocartelle.all %}
+                            <details style="margin-top: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px;">
+                                <summary style="padding: 10px 15px; font-size: 0.95em; background: #f1f1f1; display:flex; align-items:center;">
+                                    <strong style="flex-grow: 1;">📂 {{ cartella.nome }}</strong>
+                                </summary>
+                                <div style="padding: 15px;">
+                                    {% for doc in cartella.documenti.all %}
+                                        <div class="colloquio-item" style="align-items: center; padding: 8px; border-bottom: 1px solid #eee;">
+                                            <div>
+                                                <a href="{{ doc.file.url }}" target="_blank" style="text-decoration:none; color:#333; font-weight:bold;">📄 {{ doc.nome_originale }}</a>
+                                                <div style="font-size: 0.7em; color: #666;">Di {% if doc.caricato_da == request.user %}Te{% else %}{{ doc.caricato_da.first_name }}{% endif %}</div>
+                                            </div>
+                                            {% if doc.caricato_da == request.user %}
+                                                <button class="btn-elimina-file" data-doc-id="{{ doc.id }}" style="background:none; border:none; color:#d9534f; cursor:pointer;">🗑️</button>
+                                            {% endif %}
+                                        </div>
+                                    {% empty %}
+                                        <p style="font-size: 0.85em; color: #888;">Cartella vuota.</p>
+                                    {% endfor %}
+
+                                    <!-- DROPZONE SOTTOCARTELLA (Attiva solo se il medico ha dato il permesso) -->
+                                    {% if rel.paziente_puo_caricare_file %}
+                                        <div class="drag-drop-zone" data-terapeuta-id="{{ rel.terapeuta.id }}" data-cartella-id="{{ cartella.id }}" style="padding: 15px; margin-top: 10px; font-size: 0.9em;">
+                                            Trascina i file per <strong>{{ cartella.nome }}</strong> o clicca.
+                                            <input type="file" multiple class="file-input-nascosto" style="display: none;">
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </details>
+                        {% endfor %}
+
+                    {% else %}
+                        <p style="color: #888; font-size: 0.9em;">Nessun documento presente.</p>
+                    {% endif %}
+
+                    <!-- DROPZONE PRINCIPALE (Attiva solo se il medico ha dato il permesso) -->
+                    {% if rel.paziente_puo_caricare_file %}
+                        <div class="drag-drop-zone" data-terapeuta-id="{{ rel.terapeuta.id }}" data-cartella-id="" style="margin-top: 20px;">
+                            📄 Trascina i file per inviarli al medico o <strong>clicca per caricare</strong>
+                            <input type="file" multiple class="file-input-nascosto" style="display: none;">
+                        </div>
+                    {% else %}
+                        <div style="margin-top: 20px; padding: 15px; background-color: #fff3cd; color: #856404; border-radius: 6px; font-size: 0.9em;">
+                            🔒 Il caricamento dei file è disabilitato. Richiedi l'abilitazione al tuo medico durante la seduta.
+                        </div>
+                    {% endif %}
+
+                </div>
+            </details>
+        {% endfor %}
+    {% else %}
+        <div style="background: white; padding: 40px; border-radius: 8px; text-align: center; color: #666; border: 1px solid #eee;">
+            <h3 style="color: #333; margin-top: 0;">Nessun archivio clinico</h3>
+            <p>Le cartelle condivise appariranno qui dopo il tuo primo colloquio con uno specialista.</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Richiamiamo il nuovo file JS separato -->
+    <script src="{% static 'js/cartella_paziente.js' %}?v=1"></script>
+{% endblock %}

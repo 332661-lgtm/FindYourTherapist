@@ -1,0 +1,145 @@
+/* Barra di ricerca */
+.search-bar-container { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 30px; 
+}
+.search-input { 
+    flex: 1; 
+    padding: 12px; 
+    border: 1px solid #ccc; 
+    border-radius: 6px; 
+    font-size: 1em; 
+}
+.search-btn { 
+    padding: 12px 20px; 
+    background-color: #2e8b57; 
+    color: white; 
+    border: none; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-weight: bold; 
+}
+
+/* Accordion di base (Paziente) */
+details { 
+    background: #fff; 
+    border: 1px solid #eee; 
+    border-radius: 8px; 
+    margin-bottom: 10px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02); 
+}
+summary { 
+    padding: 15px 20px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    list-style: none; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    transition: background 0.2s; 
+}
+summary::-webkit-details-marker { 
+    display: none; 
+}
+summary::after { 
+    content: '▼'; 
+    font-size: 0.8em; 
+    color: #888; 
+    transition: transform 0.2s; 
+}
+details[open] > summary::after { 
+    transform: rotate(180deg); 
+}
+details[open] > summary { 
+    border-bottom: 1px solid #eee; 
+    background-color: #fafafa; 
+}
+.details-content { 
+    padding: 15px 20px; 
+}
+
+/* Accordion di 2° Livello (Sotto-menu) */
+.sub-details { 
+    margin-bottom: 10px; 
+    border-left: 3px solid #2e8b57; 
+    border-radius: 4px; 
+    box-shadow: none; 
+}
+.sub-summary { 
+    background: #fdfdfd; 
+    font-size: 0.95em; 
+    padding: 10px 15px; 
+    color: #444; 
+}
+.sub-content { 
+    padding: 10px 15px; 
+    background: #fff; 
+}
+
+/* Singolo Elemento Colloquio */
+.colloquio-item { 
+    padding: 10px 0; 
+    border-bottom: 1px dashed #ddd; 
+    display: flex; 
+    justify-content: space-between; 
+}
+.colloquio-item:last-child { 
+    border-bottom: none; 
+}
+
+/* Area File & DragDrop */
+.drag-drop-zone { 
+    border: 2px dashed #ccc; 
+    border-radius: 8px; 
+    padding: 30px; 
+    text-align: center; 
+    color: #888; 
+    background: #fcfcfc; 
+    transition: background 0.3s, border-color 0.3s; 
+    margin-top: 15px; 
+    cursor: pointer; 
+}
+.drag-drop-zone:hover { 
+    background: #f0fdf4; 
+    border-color: #2e8b57; 
+    color: #2e8b57; 
+}
+
+/* Toggle Switch stile iOS */
+.switch { 
+    position: relative; 
+    display: inline-block; 
+    width: 40px; 
+    height: 20px; 
+}
+.switch input { 
+    opacity: 0; 
+    width: 0; 
+    height: 0; 
+}
+.slider { 
+    position: absolute; 
+    cursor: pointer; 
+    top: 0; left: 0; right: 0; bottom: 0; 
+    background-color: #ccc; 
+    transition: .4s; 
+    border-radius: 20px; 
+}
+.slider:before { 
+    position: absolute; 
+    content: ""; 
+    height: 16px; 
+    width: 16px; 
+    left: 2px; 
+    bottom: 2px; 
+    background-color: white; 
+    transition: .4s; 
+    border-radius: 50%; 
+}
+input:checked + .slider { 
+    background-color: #2e8b57; 
+}
+input:checked + .slider:before { 
+    transform: translateX(20px); 
+}

@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <!-- Richiama il file CSS separato -->
+    <link rel="stylesheet" href="{% static 'css/lista_pazienti.css' %}?v=1">
+{% endblock %}
+
+{% block contenuto %}
+<div class="prenotazioni-container" style="max-width: 900px; margin: 0 auto;">
+    
+    <div class="header-sezione">
+        <h2>I Miei Pazienti</h2>
+        <p style="color: #666;">Archivio clinico, storico sedute e condivisione file.</p>
+    </div>
+
+    <!-- Barra di ricerca -->
+    <form method="GET" class="search-bar-container">
+        <input type="text" name="q" class="search-input" placeholder="Cerca paziente per nome o cognome..." value="{{ query }}">
+        <button type="submit" class="search-btn">Cerca</button>
+        {% if query %}
+            <a href="{% url 'prenotazioni:lista_pazienti' %}" class="btn-secondary-small" style="padding: 12px 20px; text-decoration: none; color: #666; background: #eee;">Reset</a>
+        {% endif %}
+    </form>
+
+    {% if page_obj %}
+        {% for paziente in page_obj %}
+            <!-- ACCORDION PRINCIPALE (PAZIENTE) -->
+            <details>
+                <summary>
+                    <span style="font-size: 1.1em;">👤 {{ paziente.user.first_name }} {{ paziente.user.last_name }}</span>
+                    
+                    <!-- CALCOLO TOTALE SEDUTE -->
+                    {% with futuri_c=paziente.futuri|length passati_c=paziente.passati|length %}
+                        <span style="font-size: 0.8em; font-weight: normal; color: #666;">
+                            {{ futuri_c|add:passati_c }} sedute totali
+                        </span>
+                    {% endwith %}
+                </summary>
+                
+                <div class="details-content">
+                    
+                    <!-- 1. SEZIONE COLLOQUI -->
+                    <details class="sub-details">
+                        <summary class="sub-summary">
+                            <!-- CALCOLO TOTALE COLLOQUI PER IL SOTTOMENU -->
+                            {% with futuri_c=paziente.futuri|length passati_c=paziente.passati|length %}
+                                <span>📅 Colloqui ({{ futuri_c|add:passati_c }})</span>
+                            {% endwith %}
+                        </summary>
+                        <div class="sub-content">
+                            
+                            <!-- Da Fare -->
+                            <h5 style="color: #2e8b57; margin: 10px 0 5px 0;">Da fare ({{ paziente.futuri|length }})</h5>
+                            {% for colloquio in paziente.futuri %}
+                                <div class="colloquio-item">
+                                    <div>
+                                        <strong>{{ colloquio.data_ora|date:"d/m/Y" }} - {{ colloquio.data_ora|time:"H:i" }}</strong>
+                                        <br><span style="font-size: 0.85em; color: #888;">
+                                            {% if colloquio.stato == 'cancellata' %} <span style="color:#d9534f;">Annullato</span> {% else %} In programma {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <p style="font-size: 0.85em; color:#999;">Nessun colloquio futuro.</p>
+                            {% endfor %}
+
+                            <!-- Fatti -->
+                            <h5 style="color: #666; margin: 20px 0 5px 0;">Fatti ({{ paziente.passati|length }})</h5>
+                            {% for colloquio in paziente.passati %}
+                                <div class="colloquio-item" style="opacity: 0.8;">
+                                    <div>
+                                        <strong>{{ colloquio.data_ora|date:"d/m/Y" }} - {{ colloquio.data_ora|time:"H:i" }}</strong>
+                                        <br><span style="font-size: 0.85em; color: #888;">
+                                            {% if colloquio.stato == 'cancellata' %} <span style="color:#d9534f;">Annullato</span> {% else %} Completato {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <p style="font-size: 0.85em; color:#999;">Nessun colloquio passato.</p>
+                            {% endfor %}
+                            
+                        </div>
+                    </details>
+
+                    <!-- 2. SEZIONE CARTELLA PRIVATA MEDICO -->
+                    <details class="sub-details">
+                        <summary class="sub-summary">
+                            <span>📁 Cartella Privata (solo medico)</span>
+                        </summary>
+                        <div class="sub-content">
+                            <!-- Bottone aderente allo stile -->
+                            <button class="btn-principale btn-nuova-cartella" data-paziente-id="{{ paziente.id }}" data-condivisa="false" style="padding: 8px 15px; font-size: 0.9em; margin-bottom: 15px; display: inline-block;">
+                                ➕ Nuova Cartella
+                            </button>
+                            
+                            <!-- FILE NELLA CARTELLA PRINCIPALE -->
+                            {% if paziente.cartella_privata %}
+                                {% for doc in paziente.cartella_privata.documenti.all %}
+                                    <div class="colloquio-item" style="align-items: center; background: #fdfdfd; padding: 10px; border-radius: 6px; border: 1px solid #eee; margin-bottom: 5px;">
+                                        <div>
+                                            📄 <a href="{{ doc.file.url }}" target="_blank" style="text-decoration: none; color: #007bff; font-weight:bold;">{{ doc.nome_originale }}</a>
+                                            <!-- DATA RIMOSSA QUI -->
+                                        </div>
+                                        <button class="btn-elimina-file" data-doc-id="{{ doc.id }}" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.2em;">🗑️</button>
+                                    </div>
+                                {% endfor %}
+
+                                <!-- SOTTOCARTELLE CREATE -->
+                                {% for cartella in paziente.cartella_privata.sottocartelle.all %}
+                                    <details style="margin-top: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px;">
+                                        
+                                        <!-- CORREZIONE LAYOUT: flex-grow: 1 sul titolo e margin-right sulla X -->
+                                        <summary style="padding: 10px 15px; font-size: 0.95em; background: #f1f1f1; display:flex; align-items:center;">
+                                            <strong style="flex-grow: 1;">📂 {{ cartella.nome }}</strong>
+                                            <button class="btn-elimina-cartella" data-cartella-id="{{ cartella.id }}" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1em; margin-right: 15px;" title="Elimina intera cartella">✖</button>
+                                        </summary>
+                                        
+                                        <div style="padding: 15px;">
+                                            <!-- I file dentro la cartella specifica -->
+                                            {% for doc in cartella.documenti.all %}
+                                                <div class="colloquio-item" style="align-items: center; padding: 8px; border-bottom: 1px solid #eee;">
+                                                    <a href="{{ doc.file.url }}" target="_blank" style="text-decoration:none; color:#333;">📄 {{ doc.nome_originale }}</a>
+                                                    <button class="btn-elimina-file" data-doc-id="{{ doc.id }}" style="background:none; border:none; color:#d9534f; cursor:pointer;">🗑️</button>
+                                                </div>
+                                            {% empty %}
+                                                <p style="font-size: 0.85em; color: #888;">Cartella vuota.</p>
+                                            {% endfor %}
+                                            
+                                            <!-- DRAG ZONE SPECIFICA PER QUESTA CARTELLA -->
+                                            <div class="drag-drop-zone" data-paziente-id="{{ paziente.id }}" data-condivisa="false" data-cartella-id="{{ cartella.id }}" style="padding: 15px; margin-top: 10px; font-size: 0.9em;">
+                                                Trascina i file per <strong>{{ cartella.nome }}</strong> o clicca.
+                                                <input type="file" multiple class="file-input-nascosto" style="display: none;">
+                                            </div>
+                                        </div>
+                                    </details>
+                                {% endfor %}
+                            {% endif %}
+                            
+                            <!-- DRAG ZONE PRINCIPALE (ROOT) -->
+                            <div class="drag-drop-zone" data-paziente-id="{{ paziente.id }}" data-condivisa="false" data-cartella-id="" style="margin-top: 20px;">
+                                📄 Trascina i file nella radice o <strong>clicca per caricare</strong>
+                                <input type="file" multiple class="file-input-nascosto" style="display: none;">
+                            </div>
+                        </div>
+                    </details>
+                    
+                    <!-- 3. SEZIONE CARTELLA CONDIVISA -->
+                    <details class="sub-details">
+                        <summary class="sub-summary">
+                            <span>🤝 Cartella Condivisa con il paziente</span>
+                        </summary>
+                        <div class="sub-content">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <button class="btn-principale btn-nuova-cartella" data-paziente-id="{{ paziente.id }}" data-condivisa="true" style="padding: 8px 15px; font-size: 0.9em; display: inline-block;">
+                                    ➕ Nuova Cartella
+                                </button>
+                                
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-size: 0.8em; color: #555;">Permetti al paziente di caricare:</span>
+                                    <label class="switch">
+                                        <input type="checkbox" class="toggle-permesso" data-paziente-id="{{ paziente.id }}" {% if paziente.permesso_upload %}checked{% endif %}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            {% if paziente.cartella_condivisa %}
+                                {% for doc in paziente.cartella_condivisa.documenti.all %}
+                                    <div class="colloquio-item" style="align-items: center; background: #f4f8fb; padding: 10px; border-radius: 6px; border: 1px solid #e1eef7; margin-bottom: 5px;">
+                                        <div>
+                                            📄 <a href="{{ doc.file.url }}" target="_blank" style="text-decoration: none; color: #007bff; font-weight:bold;">{{ doc.nome_originale }}</a>
+                                            <!-- DATA RIMOSSA QUI, LASCIO SOLO IL CREATORE -->
+                                            <div style="font-size: 0.75em; color: #666; margin-top: 4px;">
+                                                <span style="color: #007bff;">● Creato da {{ doc.caricato_da.first_name }}</span>
+                                            </div>
+                                        </div>
+                                        <button class="btn-elimina-file" data-doc-id="{{ doc.id }}" style="background: none; border: none; color: #d9534f; cursor: pointer; font-size: 1.2em;" title="Elimina file">🗑️</button>
+                                    </div>
+                                {% endfor %}
+                                
+                                <!-- SOTTOCARTELLE CONDIVISE -->
+                                {% for cartella in paziente.cartella_condivisa.sottocartelle.all %}
+                                    <details style="margin-top: 15px; background: #f4f8fb; border: 1px solid #bee5eb; border-radius: 6px;">
+                                        
+                                        <!-- CORREZIONE LAYOUT: flex-grow: 1 sul titolo e margin-right sulla X -->
+                                        <summary style="padding: 10px 15px; font-size: 0.95em; background: #d1ecf1; display:flex; align-items:center;">
+                                            <strong style="color: #0c5460; flex-grow: 1;">📂 {{ cartella.nome }}</strong>
+                                            <button class="btn-elimina-cartella" data-cartella-id="{{ cartella.id }}" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1em; margin-right: 15px;" title="Elimina intera cartella">✖</button>
+                                        </summary>
+                                        
+                                        <div style="padding: 15px;">
+                                            
+                                            <!-- I file dentro la cartella specifica -->
+                                            {% for doc in cartella.documenti.all %}
+                                                <div class="colloquio-item" style="align-items: center; padding: 8px; border-bottom: 1px solid #bee5eb;">
+                                                    <div>
+                                                        <a href="{{ doc.file.url }}" target="_blank" style="text-decoration:none; color:#0c5460; font-weight:bold;">📄 {{ doc.nome_originale }}</a>
+                                                        <div style="font-size: 0.7em; color: #666;">Creato da {{ doc.caricato_da.first_name }}</div>
+                                                    </div>
+                                                    <button class="btn-elimina-file" data-doc-id="{{ doc.id }}" style="background:none; border:none; color:#d9534f; cursor:pointer;">🗑️</button>
+                                                </div>
+                                            {% empty %}
+                                                <p style="font-size: 0.85em; color: #888;">Cartella vuota.</p>
+                                            {% endfor %}
+                                            
+                                            <!-- DRAG ZONE SPECIFICA PER QUESTA CARTELLA CONDIVISA -->
+                                            <div class="drag-drop-zone" data-paziente-id="{{ paziente.id }}" data-condivisa="true" data-cartella-id="{{ cartella.id }}" style="padding: 15px; margin-top: 10px; font-size: 0.9em; background-color: white;">
+                                                Trascina i file per <strong>{{ cartella.nome }}</strong> o clicca.
+                                                <input type="file" multiple class="file-input-nascosto" style="display: none;">
+                                            </div>
+                                        </div>
+                                    </details>
+                                {% endfor %}
+                            {% endif %}
+
+                            <!-- DRAG ZONE PRINCIPALE (ROOT CONDIVISA) -->
+                            <div class="drag-drop-zone" data-paziente-id="{{ paziente.id }}" data-condivisa="true" data-cartella-id="" style="margin-top: 20px;">
+                                📄 Trascina i file nella radice condivisa o <strong>clicca per caricare</strong>
+                                <input type="file" multiple class="file-input-nascosto" style="display: none;">
+                            </div>
+                        </div>
+                    </details>
+        {% endfor %}
+
+        <!-- Paginazione -->
+        {% if page_obj.has_other_pages %}
+            <div class="paginazione-container" style="text-align: center; margin-top: 40px;">
+                {% if page_obj.has_previous %}
+                    <a href="?{{ url_params }}&page={{ page_obj.previous_page_number }}" class="btn-secondary-small" style="text-decoration: none;">&laquo; Precedente</a>
+                {% endif %}
+
+                <span style="margin: 0 20px; font-weight: bold; color: #555;">Pagina {{ page_obj.number }} di {{ page_obj.paginator.num_pages }}</span>
+
+                {% if page_obj.has_next %}
+                    <a href="?{{ url_params }}&page={{ page_obj.next_page_number }}" class="btn-secondary-small" style="text-decoration: none;">Successiva &raquo;</a>
+                {% endif %}
+            </div>
+        {% endif %}
+
+    {% else %}
+        <div style="background: white; padding: 40px; border-radius: 8px; text-align: center; color: #666; border: 1px solid #eee;">
+            <h3 style="color: #333; margin-top: 0;">Nessun paziente trovato</h3>
+            {% if query %}
+                <p>Nessun paziente corrisponde alla ricerca "{{ query }}".</p>
+            {% else %}
+                <p>Non hai ancora effettuato o programmato colloqui con nessun paziente.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Richiama il file JS separato -->
+    <script src="{% static 'js/lista_pazienti.js' %}?v=1"></script>
+{% endblock %}

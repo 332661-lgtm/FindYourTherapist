@@ -72,4 +72,43 @@ class Terapeuta(models.Model):
         if hasattr(self, 'user') and hasattr(self.user, 'paziente'):
             raise ValidationError("Sicurezza: Questo utente è già registrato come Paziente. Non può avere anche un profilo Terapeuta.")
 
+# 1. IL LEGAME TERAPEUTA-PAZIENTE (Per salvare le impostazioni, come lo switch!)
+class RelazioneTerapeutica(models.Model):
+    terapeuta = models.ForeignKey(Terapeuta, on_delete=models.CASCADE)
+    paziente = models.ForeignKey(Paziente, on_delete=models.CASCADE)
+    
+    # Questo è il toggle switch della cartella condivisa!
+    paziente_puo_caricare_file = models.BooleanField(default=False)
+    
+    class Meta:
+        unique_together = ('terapeuta', 'paziente')
 
+# 2. IL SISTEMA A CARTELLE (Supporta sottocartelle infinite)
+class CartellaFile(models.Model):
+    nome = models.CharField(max_length=100)
+    relazione = models.ForeignKey(RelazioneTerapeutica, on_delete=models.CASCADE, related_name="cartelle")
+    
+    # Questo campo permette a una cartella di stare dentro un'altra cartella
+    cartella_padre = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name="sottocartelle")
+    
+    # True = Cartella Condivisa, False = Cartella Paziente (Privata del medico)
+    is_condivisa = models.BooleanField(default=False)
+    data_creazione = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nome} ({'Condivisa' if self.is_condivisa else 'Privata'})"
+
+# 3. I DOCUMENTI FISICI
+class Documento(models.Model):
+    cartella = models.ForeignKey(CartellaFile, on_delete=models.CASCADE, related_name="documenti")
+    
+    # Il file vero e proprio (Django lo salverà nella cartella media)
+    file = models.FileField(upload_to='documenti_clinici/')
+    nome_originale = models.CharField(max_length=255)
+    
+    # Serve per il "pallino": sappiamo se è stato caricato dall'Utente-Paziente o dall'Utente-Medico
+    caricato_da = models.ForeignKey(User, on_delete=models.CASCADE)
+    data_caricamento = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.nome_originale
