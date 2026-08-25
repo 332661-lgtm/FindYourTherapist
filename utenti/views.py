@@ -224,17 +224,19 @@ class AggiungiStudioView(LoginRequiredMixin, View):
         citta = request.POST.get('citta')
         indirizzo = request.POST.get('indirizzo')
 
-        if citta and indirizzo:
+        # LA CORREZIONE È QUI:
+        # Controlliamo che esistano e che, tolti gli spazi, ci sia ancora del testo
+        if citta and indirizzo and citta.strip() and indirizzo.strip():
             # Crea lo studio (se non esiste già identico)
             nuovo_studio, created = Studio.objects.get_or_create(
                 citta=citta.strip().capitalize(),
                 indirizzo=indirizzo.strip()
             )
-            # Lo associa automaticamente al medico loggato
             request.user.terapeuta.studi.add(nuovo_studio)
             
             messages.success(request, "Nuova sede registrata e aggiunta al tuo profilo!")
             return redirect('utenti:profilo_terapeuta')
         
-        messages.error(request, "Errore: Compila sia la Città che l'Indirizzo.")
+        # Se sono solo spazi vuoti, rimbalziamo l'utente mostrando l'errore (Status 200)
+        messages.error(request, "Errore: Compila sia la Città che l'Indirizzo con dati validi.")
         return render(request, 'utenti/aggiungi_studio.html')

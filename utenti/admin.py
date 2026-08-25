@@ -1,16 +1,21 @@
 from django.contrib import admin
-from utenti.models import Terapeuta, Paziente, Studio, Specializzazione 
-# Register your models here.
-from django.contrib import admin
-from .models import Terapeuta
+from .models import Terapeuta, Paziente, Studio, Specializzazione 
 
 @admin.register(Terapeuta)
 class TerapeutaAdmin(admin.ModelAdmin):
-    # Mostra queste colonne nella tabella
     list_display = ('user', 'prezzo', 'verified')
-    # Rende la colonna 'verified' cliccabile direttamente dalla lista!
-    list_editable = ('verified',)
+    #Permette di cliccare la spunta blu dalla lista
+    list_editable = ('verified',) 
+    list_filter = ('verified', 'studi')
 
-admin.site.register(Paziente)
-admin.site.register(Studio)
+@admin.register(Paziente)
+class PazienteAdmin(admin.ModelAdmin):
+    list_display = ('user', 'CF', 'numero_telefono')
+    search_fields = ('user__first_name', 'user__last_name', 'CF')
+
+@admin.register(Studio)
+class StudioAdmin(admin.ModelAdmin):
+    list_display = ('citta', 'indirizzo')
+    list_filter = ('citta',)
+
 admin.site.register(Specializzazione)
