@@ -57,6 +57,7 @@ class Terapeuta(models.Model):
     specializzazioni = models.ManyToManyField(Specializzazione, related_name='terapeuti', blank=True)
     pec = models.EmailField(max_length=254, blank=True, null=True)  # PEC del terapeuta
     verified = models.BooleanField(default=False)  # Campo per indicare se il terapeuta è verificato
+    link_ordine = models.URLField(max_length=200, blank=True, null=True)  # Link all'ordine degli psicologi
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"

@@ -50,35 +50,68 @@
                         </summary>
                         <div class="sub-content">
                             
-                            <!-- Da Fare -->
-                            <h5 style="color: #2e8b57; margin: 10px 0 5px 0;">Da fare ({{ paziente.futuri|length }})</h5>
+                            <!-- Da Fare (Solo attivi, escludendo i cancellati) -->
+                            <h5 style="color: #2e8b57; margin: 10px 0 5px 0;">Da fare</h5>
                             {% for colloquio in paziente.futuri %}
-                                <div class="colloquio-item">
-                                    <div>
-                                        <strong>{{ colloquio.data_ora|date:"d/m/Y" }} - {{ colloquio.data_ora|time:"H:i" }}</strong>
-                                        <br><span style="font-size: 0.85em; color: #888;">
-                                            {% if colloquio.stato == 'cancellata' %} <span style="color:#d9534f;">Annullato</span> {% else %} In programma {% endif %}
-                                        </span>
+                                {% if colloquio.stato != 'cancellata' %}
+                                    <div class="colloquio-item">
+                                        <div>
+                                            <strong>{{ colloquio.data_ora|date:"d/m/Y" }} - {{ colloquio.data_ora|time:"H:i" }}</strong>
+                                            <br><span style="font-size: 0.85em; color: #2e8b57;">In programma</span>
+                                        </div>
                                     </div>
-                                </div>
+                                {% endif %}
                             {% empty %}
                                 <p style="font-size: 0.85em; color:#999;">Nessun colloquio futuro.</p>
                             {% endfor %}
 
-                            <!-- Fatti -->
-                            <h5 style="color: #666; margin: 20px 0 5px 0;">Fatti ({{ paziente.passati|length }})</h5>
-                            {% for colloquio in paziente.passati %}
-                                <div class="colloquio-item" style="opacity: 0.8;">
-                                    <div>
-                                        <strong>{{ colloquio.data_ora|date:"d/m/Y" }} - {{ colloquio.data_ora|time:"H:i" }}</strong>
-                                        <br><span style="font-size: 0.85em; color: #888;">
-                                            {% if colloquio.stato == 'cancellata' %} <span style="color:#d9534f;">Annullato</span> {% else %} Completato {% endif %}
-                                        </span>
-                                    </div>
-                                </div>
-                            {% empty %}
-                                <p style="font-size: 0.85em; color:#999;">Nessun colloquio passato.</p>
-                            {% endfor %}
+                            <!-- COLLOQUI CANCELLATI A SCOMPARSA -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                                <span style="font-size: 0.9em; color: #d9534f; font-weight: bold;">Colloqui Annullati</span>
+                                <button type="button" onclick="toggleBox(this)" style="background: none; color: #d9534f; border: 1px solid #d9534f; padding: 2px 10px; border-radius: 15px; cursor: pointer; font-size: 0.8em;">
+                                    + Mostra annullati
+                                </button>
+                            </div>
+
+                            <div style="max-height: 200px; overflow-y: auto; display: none; margin-top: 8px;">
+                                {% for colloquio in paziente.futuri %}
+                                    {% if colloquio.stato == 'cancellata' %}
+                                        <div class="colloquio-item" style="background: #fff5f5; border-left: 3px solid #d9534f; opacity: 0.8; margin-bottom: 5px; padding: 8px;">
+                                            <div>
+                                                <strong style="text-decoration: line-through;">{{ colloquio.data_ora|date:"d/m/Y" }} - {{ colloquio.data_ora|time:"H:i" }}</strong>
+                                                <br><span style="font-size: 0.82em; color: #d9534f;">Annullato</span>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% empty %}
+                                    <p style="font-size: 0.82em; color:#999;">Nessun colloquio annullato.</p>
+                                {% endfor %}
+                            </div>
+
+                            <!-- FATTI A SCOMPARSA (Tendina) -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                                <span style="font-size: 0.9em; color: #666; font-weight: bold;">Colloqui Fatti</span>
+                                <button type="button" onclick="toggleBox(this)" style="background: none; color: #666; border: 1px solid #666; padding: 2px 10px; border-radius: 15px; cursor: pointer; font-size: 0.8em;">
+                                    + Mostra fatti
+                                </button>
+                            </div>
+
+                            <div style="max-height: 200px; overflow-y: auto; display: none; margin-top: 8px;">
+                                {% for colloquio in paziente.passati %}
+                                    {% if colloquio.stato != 'cancellata' %}
+                                        <div class="colloquio-item" style="opacity: 0.8; margin-bottom: 5px; padding: 8px;">
+                                            <div>
+                                                <strong>{{ colloquio.data_ora|date:"l j F Y"|title }} - ore {{ colloquio.data_ora|time:"H:i" }}</strong>
+                                                <br><span style="font-size: 0.85em; color: #888;">
+                                                    Completato
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% empty %}
+                                    <p style="font-size: 0.82em; color:#999;">Nessun colloquio passato.</p>
+                                {% endfor %}
+                            </div>
                             
                         </div>
                     </details>
@@ -100,7 +133,6 @@
                                     <div class="colloquio-item" style="align-items: center; background: #fdfdfd; padding: 10px; border-radius: 6px; border: 1px solid #eee; margin-bottom: 5px;">
                                         <div>
                                             📄 <a href="{{ doc.file.url }}" target="_blank" style="text-decoration: none; color: #007bff; font-weight:bold;">{{ doc.nome_originale }}</a>
-                                            <!-- DATA RIMOSSA QUI -->
                                         </div>
                                         <button class="btn-elimina-file" data-doc-id="{{ doc.id }}" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.2em;">🗑️</button>
                                     </div>
@@ -109,8 +141,6 @@
                                 <!-- SOTTOCARTELLE CREATE -->
                                 {% for cartella in paziente.cartella_privata.sottocartelle.all %}
                                     <details style="margin-top: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px;">
-                                        
-                                        <!-- CORREZIONE LAYOUT: flex-grow: 1 sul titolo e margin-right sulla X -->
                                         <summary style="padding: 10px 15px; font-size: 0.95em; background: #f1f1f1; display:flex; align-items:center;">
                                             <strong style="flex-grow: 1;">📂 {{ cartella.nome }}</strong>
                                             <button class="btn-elimina-cartella" data-cartella-id="{{ cartella.id }}" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1em; margin-right: 15px;" title="Elimina intera cartella">✖</button>
@@ -170,7 +200,6 @@
                                     <div class="colloquio-item" style="align-items: center; background: #f4f8fb; padding: 10px; border-radius: 6px; border: 1px solid #e1eef7; margin-bottom: 5px;">
                                         <div>
                                             📄 <a href="{{ doc.file.url }}" target="_blank" style="text-decoration: none; color: #007bff; font-weight:bold;">{{ doc.nome_originale }}</a>
-                                            <!-- DATA RIMOSSA QUI, LASCIO SOLO IL CREATORE -->
                                             <div style="font-size: 0.75em; color: #666; margin-top: 4px;">
                                                 <span style="color: #007bff;">● Creato da {{ doc.caricato_da.first_name }}</span>
                                             </div>
@@ -182,16 +211,12 @@
                                 <!-- SOTTOCARTELLE CONDIVISE -->
                                 {% for cartella in paziente.cartella_condivisa.sottocartelle.all %}
                                     <details style="margin-top: 15px; background: #f4f8fb; border: 1px solid #bee5eb; border-radius: 6px;">
-                                        
-                                        <!-- CORREZIONE LAYOUT: flex-grow: 1 sul titolo e margin-right sulla X -->
                                         <summary style="padding: 10px 15px; font-size: 0.95em; background: #d1ecf1; display:flex; align-items:center;">
                                             <strong style="color: #0c5460; flex-grow: 1;">📂 {{ cartella.nome }}</strong>
                                             <button class="btn-elimina-cartella" data-cartella-id="{{ cartella.id }}" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1em; margin-right: 15px;" title="Elimina intera cartella">✖</button>
                                         </summary>
                                         
                                         <div style="padding: 15px;">
-                                            
-                                            <!-- I file dentro la cartella specifica -->
                                             {% for doc in cartella.documenti.all %}
                                                 <div class="colloquio-item" style="align-items: center; padding: 8px; border-bottom: 1px solid #bee5eb;">
                                                     <div>
@@ -221,6 +246,8 @@
                             </div>
                         </div>
                     </details>
+                </div>
+            </details> 
         {% endfor %}
 
         <!-- Paginazione -->
@@ -253,6 +280,6 @@
 {% endblock %}
 
 {% block extra_js %}
-    <!-- Richiama il file JS separato -->
+    <!-- Richiama il file JS esterno separato -->
     <script src="{% static 'js/lista_pazienti.js' %}?v=1"></script>
 {% endblock %}

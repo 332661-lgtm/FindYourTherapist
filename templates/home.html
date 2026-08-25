@@ -1,15 +1,86 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}?v=1">
+{% endblock %}
 
 {% block contenuto %}
-    <div style="text-align: center; margin-top: 50px;">
-        <h1>Benvenuto in FindYourTherapist</h1>
-        {% if user.paziente %}
-            <p>Ciao, {{ user.first_name|default:user.username }}! Esplora i nostri terapeuti e prenota la tua seduta.</p>
-        {% elif user.terapeuta %}
-            <p>Benvenuto/a, Dott. {{ user.last_name|default:user.username }}! Gestisci le tue prenotazioni e le tue sedute.</p>
-        {% else %}
-            <p>Accedi o registrati per iniziare a prenotare le tue sedute con i terapeuti che fanno al caso tuo.</p>
-        {% endif %}
-        <p>Questa è la Home Page principale</p>
+<div style="max-width: 1100px; margin: 0 auto; padding: 20px 10px;">
+
+    <!-- MESSAGGIO DINAMICO IN BASE AL PROFILO -->
+    {% if user.is_authenticated %}
+        <div class="welcome-box">
+            <div>
+                <h2 style="margin: 0; color: #2c3e50; font-size: 1.4em;">
+                    {% if user.paziente %}
+                        Ciao, {{ user.first_name|default:user.username }}! (Area Paziente)
+                    {% elif user.terapeuta %}
+                        Benvenuto/a, Dott. {{ user.last_name|default:user.username }}! (Area Terapeuta)
+                    {% else %}
+                        Benvenuto, {{ user.username }}!
+                    {% endif %}
+                </h2>
+                <p style="margin: 5px 0 0 0; color: #666; font-size: 0.95em;">
+                    La piattaforma è pronta per gestire le tue sedute e i tuoi documenti clinici in tutta sicurezza.
+                </p>
+            </div>
+            <div>
+                {% if user.paziente %}
+                    <a href="{% url 'utenti:vetrina' %}" class="btn-hero" style="padding: 10px 20px; font-size: 0.9em;">Cerca Terapeuti</a>
+                {% elif user.terapeuta %}
+                    <a href="{% url 'prenotazioni:lista_pazienti' %}" class="btn-hero" style="padding: 10px 20px; font-size: 0.9em; background-color: #007bff;">I Miei Pazienti</a>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <!-- HERO SECTION PER UTENTI ANONIMI -->
+        <section class="hero-section">
+            <h1>FindYourTherapist</h1>
+            <p>La piattaforma web progettata per semplificare e ottimizzare l'incontro tra professionisti della salute mentale e pazienti. Gestisci ricerca, appuntamenti e archiviazione clinica in un unico ecosistema sicuro.</p>
+            <a href="{% url 'utenti:vetrina' %}" class="btn-hero">Sfoglia la Vetrina Terapeuti</a>
+        </section>
+    {% endif %}
+
+    <!-- SPIEGAZIONE DEL FUNZIONAMENTO SUDDIVISA PER CATEGORIA -->
+    <h3 style="color: #333; margin-top: 40px; text-align: center; font-size: 1.5em;">Come funziona la piattaforma</h3>
+    <p style="text-align: center; color: #666; margin-bottom: 30px;">Scopri le funzionalità dedicate a seconda del tuo profilo d'accesso:</p>
+
+    <div class="features-grid">
+        
+        <!-- 1. UTENTE VISITATORE / ANONIMO -->
+        <div class="feature-card card-visitatore">
+            <h3>🔍 Visitatori (Non Registrati)</h3>
+            <p style="color: #666; font-size: 0.9em; margin: 0;">Esplora liberamente i professionisti.</p>
+            <ul class="feature-list">
+                <li><strong>Vetrina Terapeuti:</strong> Accesso libero alla lista dei professionisti certificati.</li>
+                <li><strong>Filtri Avanzati:</strong> Cerca per specializzazione, città o tariffa massima.</li>
+                <li><strong>Trasparenza:</strong> Visualizza profili dettagliati e sedi prima di effettuare l'iscrizione.</li>
+            </ul>
+        </div>
+
+        <!-- 2. UTENTE PAZIENTE -->
+        <div class="feature-card card-paziente">
+            <h3>👤 Utenti Pazienti</h3>
+            <p style="color: #666; font-size: 0.9em; margin: 0;">Il tuo percorso di supporto su misura.</p>
+            <ul class="feature-list">
+                <li><strong>Prenotazione Flessibile:</strong> Scegli il professionista, la sede e lo slot orario ideale.</li>
+                <li><strong>Dashboard Appuntamenti:</strong> Monitora lo storico dei colloqui divisi in <em>In programma, Effettuati</em> e <em>Annullati</em>.</li>
+                <li><strong>Spazio Condiviso:</strong> Scambia documenti clinici in sicurezza con il tuo terapeuta.</li>
+            </ul>
+        </div>
+
+        <!-- 3. UTENTE TERAPEUTA -->
+        <div class="feature-card card-terapeuta">
+            <h3>🧑‍⚕️ Utenti Terapeuti</h3>
+            <p style="color: #666; font-size: 0.9em; margin: 0;">Gestione professionale e studio digitale.</p>
+            <ul class="feature-list">
+                <li><strong>Multi-Studio e Assenze:</strong> Configura gli orari per singola sede e gestisci le ferie in autonomia.</li>
+                <li><strong>Dashboard Operativa:</strong> Calendario giornaliero con notifiche visive per le nuove prenotazioni.</li>
+                <li><strong>Archivio Clinico:</strong> Scrivania digitale con area privata (appunti) e condivisa per ciascun paziente.</li>
+            </ul>
+        </div>
+
     </div>
+</div>
 {% endblock %}

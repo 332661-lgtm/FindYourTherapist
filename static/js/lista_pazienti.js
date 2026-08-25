@@ -1,4 +1,4 @@
-// Funzione per ottenere il CSRF token di Django (obbligatorio per chiamate AJAX sicure)
+// Funzione per ottenere il CSRF token di Django
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -12,6 +12,19 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+}
+
+// Funzione globale e generica per aprire/chiudere le tendine (Annullati / Fatti)
+function toggleBox(button) {
+    const box = button.parentElement.nextElementSibling;
+    const currentText = button.innerHTML;
+    if (box.style.display === 'none' || box.style.display === '') {
+        box.style.display = 'block';
+        button.innerHTML = currentText.replace('+ Mostra', '- Nascondi');
+    } else {
+        box.style.display = 'none';
+        button.innerHTML = currentText.replace('- Nascondi', '+ Mostra');
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -35,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(data => {
                 if(!data.success) {
                     alert('Errore di connessione. Permesso non salvato.');
-                    this.checked = !stato; // Torna indietro
+                    this.checked = !stato; 
                 }
             });
         });
@@ -43,14 +56,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // 2. GESTIONE UPLOAD FILE E DRAG&DROP
     const dropZones = document.querySelectorAll('.drag-drop-zone');
-    
     dropZones.forEach(zone => {
         const fileInput = zone.querySelector('.file-input-nascosto');
         
-        // Se si clicca sul rettangolo, si apre la selezione classica dei file
         zone.addEventListener('click', () => fileInput.click());
 
-        // Eventi visivi per il trascinamento (verde chiaro al passaggio)
         zone.addEventListener('dragover', (e) => {
             e.preventDefault();
             zone.style.backgroundColor = '#e8f5e9';
@@ -63,23 +73,21 @@ document.addEventListener("DOMContentLoaded", function() {
             zone.style.borderColor = '';
         });
 
-        // Funzione comune per processare i file (sia trascinati che selezionati)
         const processaFile = (files) => {
             if (files.length === 0) return;
             
             const pazienteId = zone.dataset.pazienteId;
             const isCondivisa = zone.dataset.condivisa;
-            const cartellaId = zone.dataset.cartellaId || ''; // <--- NOVITÀ
+            const cartellaId = zone.dataset.cartellaId || '';
 
             const formData = new FormData();
             formData.append('paziente_id', pazienteId);
             formData.append('is_condivisa', isCondivisa);
-            formData.append('cartella_id', cartellaId); // <--- INVIA L'ID
+            formData.append('cartella_id', cartellaId);
             for(let i=0; i < files.length; i++){
                 formData.append('file', files[i]);
             }
 
-            // Cambiamo testo per far capire all'utente che sta caricando
             const testoOriginale = zone.innerHTML;
             zone.innerHTML = `<span style="color:#2e8b57;">⏳ Caricamento di ${files.length} file in corso...</span>`;
 
@@ -92,7 +100,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(data => {
                 if(data.success) {
                     zone.innerHTML = `<span style="color:#2e8b57;">✅ File salvati con successo!</span>`;
-                    setTimeout(() => location.reload(), 1000); // Ricarica rapida per mostrare i file (la miglioreremo!)
+                    setTimeout(() => location.reload(), 1000);
                 } else {
                     alert('Errore: ' + data.error);
                     zone.innerHTML = testoOriginale;
@@ -100,7 +108,6 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         };
 
-        // Quando i file vengono trascinati
         zone.addEventListener('drop', (e) => {
             e.preventDefault();
             zone.style.backgroundColor = '';
@@ -108,7 +115,6 @@ document.addEventListener("DOMContentLoaded", function() {
             processaFile(e.dataTransfer.files);
         });
 
-        // Quando i file vengono selezionati col click
         fileInput.addEventListener('change', (e) => {
             processaFile(e.target.files);
         });
@@ -127,7 +133,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 .then(res => res.json())
                 .then(data => {
                     if(data.success) {
-                        this.closest('.colloquio-item').remove(); // Cancella il file dalla pagina senza ricaricare!
+                        this.closest('.colloquio-item').remove();
                     } else {
                         alert("Errore nell'eliminazione.");
                     }
@@ -154,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 .then(res => res.json())
                 .then(data => {
                     if(data.success) {
-                        location.reload(); // Ricarica per mostrare la nuova cartella
+                        location.reload();
                     } else {
                         alert("Errore nella creazione della cartella.");
                     }
@@ -162,10 +168,12 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     });
+
+    // 5. ELIMINAZIONE CARTELLA
     const btnEliminaCartella = document.querySelectorAll('.btn-elimina-cartella');
     btnEliminaCartella.forEach(btn => {
         btn.addEventListener('click', function(e) {
-            e.preventDefault(); // Evita che si chiuda l'accordion HTML5
+            e.preventDefault();
             if(confirm("ATTENZIONE: Eliminando la cartella verranno persi anche tutti i file al suo interno. Procedere?")) {
                 const cartellaId = this.dataset.cartellaId;
                 fetch(`/prenotazioni/api/elimina-cartella/${cartellaId}/`, {
@@ -175,7 +183,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 .then(res => res.json())
                 .then(data => {
                     if(data.success) {
-                        this.closest('details').remove(); // Rimuove graficamente la cartella dal dom
+                        this.closest('details').remove();
                     } else {
                         alert("Errore nell'eliminazione.");
                     }
@@ -184,5 +192,3 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 });
-
-

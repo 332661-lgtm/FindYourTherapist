@@ -110,7 +110,8 @@ class TerapeutaUpdateForm(forms.ModelForm):
             'prezzo': 'Prezzo a seduta (€)',
             'descrizione': 'Descrizione / Biografia',
             'studi': 'I tuoi studi attuali',
-            'specializzazioni': 'Le tue specializzazioni'
+            'specializzazioni': 'Le tue specializzazioni',
+            'link_ordine': 'Link all\'ordine degli psicologi'
         }
         widgets = {
             # Blocchiamo il resize via CSS in linea e mettiamo il maxlength a 500

@@ -26,9 +26,7 @@ class Prenotazione(models.Model):
         verbose_name = "Prenotazione"
         verbose_name_plural = "Prenotazioni"
         ordering = ['data_ora']
-        constraints = [
-            models.UniqueConstraint(fields=['terapeuta', 'data_ora'], name='unica_seduta_terapeuta')
-        ]
+        
 
     def clean(self):
         data_fine_scelta = self.data_ora + timedelta(minutes=self.durata_minuti)

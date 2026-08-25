@@ -350,9 +350,22 @@ class CreaCartellaView(LoginRequiredMixin, View):
         is_condivisa = data.get('is_condivisa')
         nome_cartella = data.get('nome')
 
-        relazione = RelazioneTerapeutica.objects.get(terapeuta=request.user.terapeuta, paziente_id=paziente_id)
-        cartella_padre = CartellaFile.objects.get(relazione=relazione, is_condivisa=is_condivisa, cartella_padre__isnull=True)
+        # 1. Trova la relazione oppure creala al volo per i nuovi pazienti
+        relazione, _ = RelazioneTerapeutica.objects.get_or_create(
+            terapeuta=request.user.terapeuta, 
+            paziente_id=paziente_id
+        )
         
+        # 2. Trova la cartella padre (Root) oppure creala al volo
+        nome_root = "Condivisa" if is_condivisa else "Privata"
+        cartella_padre, _ = CartellaFile.objects.get_or_create(
+            relazione=relazione, 
+            is_condivisa=is_condivisa, 
+            cartella_padre__isnull=True,
+            defaults={'nome': nome_root} # Se non esiste, chiamala così
+        )
+        
+        # 3. Crea finalmente la sottocartella richiesta
         CartellaFile.objects.create(
             nome=nome_cartella,
             relazione=relazione,
@@ -387,25 +400,34 @@ class UploadFileView(LoginRequiredMixin, View):
 
         paziente_id = request.POST.get('paziente_id')
         is_condivisa = request.POST.get('is_condivisa') == 'true'
-        cartella_id = request.POST.get('cartella_id') # <--- Leggiamo se c'è una cartella specifica
+        cartella_id = request.POST.get('cartella_id')
         files = request.FILES.getlist('file')
         
-        # Per sicurezza peschiamo la relazione
+        # 1. Generazione automatica e sicura della relazione per i nuovi account
         if hasattr(request.user, 'terapeuta'):
-            relazione = RelazioneTerapeutica.objects.get(terapeuta=request.user.terapeuta, paziente_id=paziente_id)
+            relazione, _ = RelazioneTerapeutica.objects.get_or_create(
+                terapeuta=request.user.terapeuta, 
+                paziente_id=paziente_id
+            )
         else:
-            relazione = RelazioneTerapeutica.objects.get(paziente=request.user.paziente, terapeuta_id=request.POST.get('terapeuta_id'))
+            relazione, _ = RelazioneTerapeutica.objects.get_or_create(
+                paziente=request.user.paziente, 
+                terapeuta_id=request.POST.get('terapeuta_id')
+            )
         
-        # Se c'è un ID specifico, mettiamo i file lì dentro
+        # 2. Assegnazione sicura della cartella
         if cartella_id:
             cartella = CartellaFile.objects.get(id=cartella_id, relazione=relazione)
         else:
-            # Altrimenti li mettiamo nella "Root" (la cartella principale invisibile)
-            nome_cartella = "Condivisa" if is_condivisa else "Privata"
+            nome_root = "Condivisa" if is_condivisa else "Privata"
             cartella, _ = CartellaFile.objects.get_or_create(
-                relazione=relazione, nome=nome_cartella, is_condivisa=is_condivisa, cartella_padre=None
+                relazione=relazione, 
+                is_condivisa=is_condivisa, 
+                cartella_padre__isnull=True,
+                defaults={'nome': nome_root}
             )
         
+        # 3. Salvataggio
         for f in files:
             Documento.objects.create(cartella=cartella, file=f, nome_originale=f.name, caricato_da=request.user)
             
