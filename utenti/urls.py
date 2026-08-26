@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import (AggiungiStudioView, ProfiloPazienteView, ProfiloTerapeutaView, 
-                    RegistrazionePazienteView, RegistrazioneTerapeutaView, VetrinaTerapeutiView)
+                    RegistrazionePazienteView, RegistrazioneTerapeutaView, VetrinaTerapeutiView, ModificaStudioView)
 
 app_name = 'utenti' 
 
@@ -12,5 +12,6 @@ urlpatterns = [
     path('registrati-terapeuta/', RegistrazioneTerapeutaView.as_view(), name='registrati_terapeuta'),
     path('profilo/', ProfiloPazienteView.as_view(), name='profilo_paziente'),
     path('profilo-terapeuta/', ProfiloTerapeutaView.as_view(), name='profilo_terapeuta'),
-    path('aggiungi-studio/', AggiungiStudioView.as_view(), name='aggiungi_studio')
+    path('aggiungi-studio/', AggiungiStudioView.as_view(), name='aggiungi_studio'),
+    path('modifica-studio/<int:studio_id>/', ModificaStudioView.as_view(), name='modifica_studio'),
 ]

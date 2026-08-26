@@ -38,9 +38,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 contenitoreSlot.innerHTML = `<h5 style="margin-bottom:10px;">Orari disponibili per il ${dateStr}:</h5>`;
                 
                 const slotContainer = document.createElement('div');
-                slotContainer.style.display = 'flex';
+                // Sostituiamo Flexbox con CSS Grid per bloccare le dimensioni!
+                slotContainer.style.display = 'grid';
+                slotContainer.style.gridTemplateColumns = 'repeat(3, 1fr)'; // Esattamente 3 colonne uguali
                 slotContainer.style.gap = '10px';
-                slotContainer.style.flexWrap = 'wrap';
 
                 if(data.slots.length === 0) {
                     contenitoreSlot.innerHTML += `<p style="color:#d9534f;">Nessun orario disponibile per questa data. Riprova in un altro giorno.</p>`;
@@ -80,11 +81,24 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // 3. Logica di interazione: Quando si seleziona uno Studio dai Radio Button
+    // 3. Logica di interazione: Quando si seleziona uno Studio dai Radio Button
     radioStudi.forEach(radio => {
         radio.addEventListener('change', function() {
             const idStudioSelezionato = this.value;
-            // Peschiamo i giorni lavorativi (se non ce ne sono, array vuoto)
             const giorniAttivi = mappaGiorni[idStudioSelezionato] || [];
+
+            // --- NUOVA LOGICA: MOSTRA LA FOTO DELLO STUDIO IN GRANDE ---
+            const imgUrl = this.getAttribute('data-img');
+            const previewBox = document.getElementById('studio-image-preview');
+            const imgTag = document.getElementById('studio-img-tag');
+
+            if (imgUrl && imgUrl.trim() !== '') {
+                imgTag.src = imgUrl;
+                previewBox.style.display = 'block'; // Mostra il box
+            } else {
+                previewBox.style.display = 'none'; // Nascondi se non c'è foto
+            }
+            // -----------------------------------------------------------
 
             // Accendiamo visivamente il box del calendario
             boxCalendario.classList.add('attivo');
@@ -94,15 +108,11 @@ document.addEventListener("DOMContentLoaded", function() {
             // Aggiorniamo dinamicamente le regole di Flatpickr
             calendario.set('disable', [
                 function(date) {
-                    // Flatpickr usa 0=Domenica, 1=Lunedì, ecc.
                     const giornoSettimana = date.getDay();
-                    
-                    // Disabilita il giorno (ritorna true) SE non è nella lista dei giorni attivi per questo studio
                     return !giorniAttivi.includes(giornoSettimana);
                 }
             ]);
 
-            // Forziamo il calendario a rinfrescare l'interfaccia con le nuove regole
             calendario.redraw();
         });
     });

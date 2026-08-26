@@ -14,7 +14,7 @@
     </div>
 
     <!-- UN UNICO FORM HTML CHE INVIA I DATI DI ENTRAMBI I FORM DJANGO -->
-    <form method="POST" action="{% url 'utenti:profilo_paziente' %}">
+    <form method="POST" action="{% url 'utenti:profilo_paziente' %}" enctype="multipart/form-data">
         {% csrf_token %}
 
         <h3 class="form-section-title">Credenziali di Accesso</h3>

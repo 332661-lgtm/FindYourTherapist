@@ -12,7 +12,7 @@
         <p>Aggiungi un nuovo ambulatorio al database.</p>
     </div>
 
-    <form method="POST" action="{% url 'utenti:aggiungi_studio' %}">
+    <form method="POST" action="{% url 'utenti:aggiungi_studio' %}" enctype="multipart/form-data">
         {% csrf_token %}
         
         <div style="margin-bottom: 15px;">
@@ -23,6 +23,11 @@
         <div style="margin-bottom: 25px;">
             <label style="font-weight: bold; display: block; margin-bottom: 5px;">Indirizzo completo</label>
             <input type="text" name="indirizzo" placeholder="Es. Via Roma 15" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+
+        <div style="margin-bottom: 25px;">
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Foto dello Studio (Opzionale)</label>
+            <input type="file" name="foto_studio" accept="image/*">
         </div>
 
         <div style="display: flex; gap: 10px;">

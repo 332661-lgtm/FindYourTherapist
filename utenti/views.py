@@ -3,11 +3,19 @@ from django.views import View
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.contrib import messages
-from .forms import RegistrazionePazienteForm, RegistrazioneTerapeutaForm
-from .models import Paziente, Terapeuta, Studio, Specializzazione
 from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import UserUpdateForm, PazienteUpdateForm, TerapeutaUpdateForm
+from django.shortcuts import get_object_or_404
+from .forms import (
+    RegistrazionePazienteForm, 
+    RegistrazioneTerapeutaForm,
+    UserUpdateForm, 
+    PazienteUpdateForm, 
+    TerapeutaUpdateForm
+)
+
+# Importiamo i modelli
+from .models import Paziente, Terapeuta, Studio, Specializzazione
 
 
 class RegistrazionePazienteView(View):
@@ -32,7 +40,7 @@ class RegistrazionePazienteView(View):
                         indirizzo=form.cleaned_data['indirizzo']
                     )
 
-                messages.success(request, "Registrazione completata con successo! Benvenuto in PsyTechWeb.")
+                messages.success(request, "Registrazione completata con successo! Benvenuto in FindYourTherapist.")
                 return redirect('utenti:accedi')
 
             except Exception as e:
@@ -42,7 +50,7 @@ class RegistrazionePazienteView(View):
 
         return render(request, 'utenti/registrazione_paz.html', {'form': form})
 
-# Aggiungi questa View:
+
 class RegistrazioneTerapeutaView(View):
     def get(self, request):
         form = RegistrazioneTerapeutaForm()
@@ -71,7 +79,8 @@ class RegistrazioneTerapeutaView(View):
             except Exception as e:
                 messages.error(request, "Errore durante la registrazione. Riprova.")
         
-        return render(request, 'utenti/registrati_terapeuta.html', {'form': form})
+        return render(request, 'utenti/registrazione_ter.html', {'form': form})
+
 
 class VetrinaTerapeutiView(View):
     def get(self, request):
@@ -90,7 +99,7 @@ class VetrinaTerapeutiView(View):
         if spec_scelte:
             terapeuti = terapeuti.filter(specializzazioni__id__in=spec_scelte).distinct()
         
-        # FILTRO PREZZO (La logica corretta che hai richiesto)
+        # FILTRO PREZZO
         if prezzo_max:
             # Usiamo Q per dire: "Prezzo minore o uguale a prezzo_max" OPPURE (|) "Prezzo è nullo"
             terapeuti = terapeuti.filter(
@@ -124,10 +133,8 @@ class VetrinaTerapeutiView(View):
             }
         }
         
-        # L'HTML che abbiamo scritto prima ha già il blocco {% empty %}
-        # Quindi se dopo questi filtri la lista "terapeuti" è vuota, 
-        # mostrerà automaticamente il messaggio "Nessun terapeuta trovato con i requisiti richiesti".
         return render(request, 'utenti/vetrina.html', context)
+
 
 class ProfiloPazienteView(LoginRequiredMixin, View):
     def get(self, request):
@@ -159,15 +166,16 @@ class ProfiloPazienteView(LoginRequiredMixin, View):
             user_form.save()
             paziente_form.save()
             messages.success(request, "Il tuo profilo è stato aggiornato con successo!")
-            return redirect('utenti:profilo_paziente') # Ricarica la pagina
+            return redirect('utenti:profilo_paziente')
 
-        # Se c'è un errore (es. email non valida), ricarica la pagina mostrando gli errori
+        # Se c'è un errore, ricarica la pagina mostrando gli errori
         messages.error(request, "Errore nell'aggiornamento. Controlla i dati inseriti.")
         context = {
             'user_form': user_form,
             'paziente_form': paziente_form
         }
         return render(request, 'utenti/profilo_paziente.html', context)
+
 
 class ProfiloTerapeutaView(LoginRequiredMixin, View):
     def get(self, request):
@@ -178,7 +186,6 @@ class ProfiloTerapeutaView(LoginRequiredMixin, View):
         terapeuta_form = TerapeutaUpdateForm(instance=request.user.terapeuta)
         
         # Estraiamo i dati per costruire l'interfaccia JS personalizzata
-        from .models import Specializzazione, Studio
         context = {
             'user_form': user_form,
             'terapeuta_form': terapeuta_form,
@@ -194,8 +201,15 @@ class ProfiloTerapeutaView(LoginRequiredMixin, View):
         if not hasattr(request.user, 'terapeuta'):
             return redirect('home')
 
+        if request.POST.get('elimina_foto_profilo') == '1':
+            if request.user.terapeuta.foto_profilo:
+                request.user.terapeuta.foto_profilo.delete(save=False) # Elimina il file dal server
+                request.user.terapeuta.foto_profilo = None             # Svuota il database
+                request.user.terapeuta.save()
+
         user_form = UserUpdateForm(request.POST, instance=request.user)
-        terapeuta_form = TerapeutaUpdateForm(request.POST, instance=request.user.terapeuta)
+        # Riceviamo i file (request.FILES) con la corretta indentazione
+        terapeuta_form = TerapeutaUpdateForm(request.POST, request.FILES, instance=request.user.terapeuta)
 
         if user_form.is_valid() and terapeuta_form.is_valid():
             user_form.save()
@@ -210,6 +224,7 @@ class ProfiloTerapeutaView(LoginRequiredMixin, View):
         }
         return render(request, 'utenti/profilo_terapeuta.html', context)
 
+
 class AggiungiStudioView(LoginRequiredMixin, View):
     def get(self, request):
         if not hasattr(request.user, 'terapeuta'):
@@ -223,20 +238,75 @@ class AggiungiStudioView(LoginRequiredMixin, View):
 
         citta = request.POST.get('citta')
         indirizzo = request.POST.get('indirizzo')
+        foto = request.FILES.get('foto_studio') # Catturiamo il file dell'immagine
 
-        # LA CORREZIONE È QUI:
-        # Controlliamo che esistano e che, tolti gli spazi, ci sia ancora del testo
         if citta and indirizzo and citta.strip() and indirizzo.strip():
-            # Crea lo studio (se non esiste già identico)
             nuovo_studio, created = Studio.objects.get_or_create(
                 citta=citta.strip().capitalize(),
                 indirizzo=indirizzo.strip()
             )
+            
+            # Se è stata caricata una foto, la assegniamo allo studio
+            if foto:
+                nuovo_studio.foto_studio = foto
+                nuovo_studio.save()
+                
             request.user.terapeuta.studi.add(nuovo_studio)
             
             messages.success(request, "Nuova sede registrata e aggiunta al tuo profilo!")
             return redirect('utenti:profilo_terapeuta')
         
-        # Se sono solo spazi vuoti, rimbalziamo l'utente mostrando l'errore (Status 200)
         messages.error(request, "Errore: Compila sia la Città che l'Indirizzo con dati validi.")
         return render(request, 'utenti/aggiungi_studio.html')
+
+    from django.shortcuts import get_object_or_404 # Aggiungi questo in cima al file se non c'è
+
+class ModificaStudioView(LoginRequiredMixin, View):
+    def get(self, request, studio_id):
+        if not hasattr(request.user, 'terapeuta'):
+            messages.error(request, "Accesso negato.")
+            return redirect('home')
+        
+        # Peschiamo lo studio
+        studio = get_object_or_404(Studio, id=studio_id)
+        
+        # Sicurezza: verifichiamo che questo studio sia tra quelli del terapeuta
+        if studio not in request.user.terapeuta.studi.all():
+            messages.error(request, "Non hai i permessi per modificare questa sede.")
+            return redirect('utenti:profilo_terapeuta')
+            
+        return render(request, 'utenti/modifica_studio.html', {'studio': studio})
+
+    def post(self, request, studio_id):
+        if not hasattr(request.user, 'terapeuta'):
+            return redirect('home')
+
+        studio = get_object_or_404(Studio, id=studio_id)
+        if studio not in request.user.terapeuta.studi.all():
+            messages.error(request, "Non hai i permessi per modificare questa sede.")
+            return redirect('utenti:profilo_terapeuta')
+
+        if request.POST.get('elimina_foto_studio') == '1':
+            if studio.foto_studio:
+                studio.foto_studio.delete(save=False)
+                studio.foto_studio = None
+                studio.save()
+
+        citta = request.POST.get('citta')
+        indirizzo = request.POST.get('indirizzo')
+        foto = request.FILES.get('foto_studio')
+
+        if citta and indirizzo and citta.strip() and indirizzo.strip():
+            studio.citta = citta.strip().capitalize()
+            studio.indirizzo = indirizzo.strip()
+            
+            # Se ha caricato una nuova foto, la sostituiamo
+            if foto:
+                studio.foto_studio = foto
+                
+            studio.save()
+            messages.success(request, "Sede aggiornata con successo!")
+            return redirect('utenti:profilo_terapeuta')
+        
+        messages.error(request, "Errore: Compila sia la Città che l'Indirizzo.")
+        return render(request, 'utenti/modifica_studio.html', {'studio': studio})

@@ -36,41 +36,66 @@
             <div class="bio-quote">"{{ terapeuta.descrizione }}"</div>
         {% endif %}
     </div>
-
+    
     <!-- SEZIONE INTERATTIVA: STUDIO -> CALENDARIO -> ORARI -->
-    <h3 style="color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px;">Prenota un appuntamento</h3>
+    <h3 style="color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 40px;">Prenota un appuntamento</h3>
     
     <div class="prenotazione-layout">
         
         <!-- STEP 1: Seleziona Studio -->
         <div class="selezione-studio">
-            <h4>1. Scegli la sede</h4>
+            <h4 style="margin-top: 0; color: #2c3e50; font-size: 1.2em; margin-bottom: 20px;">1. Scegli la sede</h4>
+            
             {% if studi %}
                 <form id="form-prenotazione">
                     {% for studio in studi %}
-                        <label class="studio-radio-label">
-                            <input type="radio" name="studio_id" value="{{ studio.id }}" class="radio-studio">
-                            📍 {{ studio.indirizzo }}, {{ studio.citta }}
+                        
+                        <!-- CARD DELLO STUDIO -->
+                        <label class="studio-card-label">
+                            <!-- Salviamo l'URL della foto nel parametro data-img -->
+                            <input type="radio" name="studio_id" value="{{ studio.id }}" data-img="{% if studio.foto_studio %}{{ studio.foto_studio.url }}{% endif %}" class="radio-studio hidden-radio">
+                            
+                            <div class="studio-card-content">
+                                <!-- Dettagli Testuali -->
+                                <div class="studio-card-text">
+                                    <span class="studio-indirizzo">📍 {{ studio.indirizzo }}</span>
+                                    <span class="studio-citta">{{ studio.citta }}</span>
+                                </div>
+                                
+                                <!-- Icona di conferma animata -->
+                                <div class="check-icon">✓</div>
+                            </div>
                         </label>
+
                     {% endfor %}
                 </form>
+
+                <!-- BLOCCO FOTO GRANDE (Nascosto di default, si anima col click) -->
+                <div id="studio-image-preview" style="display: none; margin-top: 25px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 2px solid #e1e8ed;">
+                    <h5 style="background: #f8f9fa; color: #2c3e50; margin: 0; padding: 12px 15px; border-bottom: 1px solid #e1e8ed; text-align: center;">Foto dell'ambulatorio</h5>
+                    <img id="studio-img-tag" src="" alt="Foto Studio" style="width: 100%; max-height: 250px; object-fit: cover; display: block;">
+                </div>
+
             {% else %}
-                <p style="color: #d9534f;">Questo terapeuta non ha sedi registrate.</p>
+                <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 6px; border: 1px solid #ffeeba;">
+                    Questo terapeuta non ha sedi registrate al momento.
+                </div>
             {% endif %}
         </div>
 
         <!-- STEP 2: Il Calendario -->
         <div class="calendario-container" id="box-calendario">
-            <h4 style="margin-top: 0;">2. Scegli il giorno</h4>
-            <p id="avviso-calendario" style="color: #666; font-size: 0.9em;">Seleziona prima una sede lavorativa.</p>
+            <h4 style="margin-top: 0; color: #2c3e50; font-size: 1.2em;">2. Scegli data e ora</h4>
+            <p id="avviso-calendario" style="color: #888; font-size: 0.9em; margin-bottom: 20px;">Seleziona prima una sede lavorativa a sinistra.</p>
             
             <!-- Qui Flatpickr inietterà il calendario -->
             <input type="text" id="calendario-input" style="display: none;">
 
             <!-- STEP 3: Slot Orari -->
             <div id="slot-orari-container">
-                <!-- I bottoni degli orari appariranno qui -->
+                <!-- I bottoni degli orari appariranno qui tramite JS -->
             </div>
+            
             <!-- FORM INVISIBILE PER L'INVIO FINALE -->
             <form id="form-conferma-prenotazione" method="POST" action="{% url 'prenotazioni:crea_prenotazione_veloce' %}" style="display: none;">
                 {% csrf_token %}

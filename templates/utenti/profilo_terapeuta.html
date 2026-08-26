@@ -19,7 +19,7 @@
         </div>
     {% endif %}
 
-    <form method="POST" action="{% url 'utenti:profilo_terapeuta' %}">
+    <form method="POST" action="{% url 'utenti:profilo_terapeuta' %}" enctype="multipart/form-data">
         {% csrf_token %}
 
         <h3 class="form-section-title">Informazioni di Accesso</h3>
@@ -35,6 +35,42 @@
 
         <h3 class="form-section-title">Dettagli Medico-Professionali</h3>
         
+        <div class="profilo-row">
+            <label>{{ terapeuta_form.foto_profilo.label|default:"Foto del Profilo" }}</label>
+            <div class="input-box">
+                
+                <!-- 1. ANTEPRIMA IMMAGINE E TASTO RIMUOVI -->
+                {% if request.user.terapeuta.foto_profilo %}
+                    <div id="preview-foto-profilo" style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                        <img src="{{ request.user.terapeuta.foto_profilo.url }}" alt="Foto Profilo" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 2px solid #2e8b57; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        
+                        <button type="button" onclick="eliminaFotoProfilo()" style="background: #fff5f5; border: 1px solid #d9534f; color: #d9534f; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 0.85em; transition: 0.3s;">
+                            ✖ Rimuovi foto
+                        </button>
+                    </div>
+                {% endif %}
+
+                <!-- 2. IL CAMPO PER CARICARE (Che ora ha lo stile personalizzato) -->
+                {{ terapeuta_form.foto_profilo }}
+                
+                <!-- 3. IL CAMPO SPIA NASCOSTO PER PYTHON -->
+                <input type="hidden" name="elimina_foto_profilo" id="elimina_foto_profilo_flag" value="0">
+
+                <small style="color: #888; display: block; margin-top: 8px;">Carica un'immagine quadrata per un risultato ottimale.</small>
+                {% if terapeuta_form.foto_profilo.errors %}<span class="error-text">{{ terapeuta_form.foto_profilo.errors|striptags }}</span>{% endif %}
+            </div>
+        </div>
+
+        <!-- 4. LO SCRIPT CHE AZIONA IL BOTTONE -->
+        <script>
+            function eliminaFotoProfilo() {
+                // Nasconde la foto e il bottone
+                document.getElementById('preview-foto-profilo').style.display = 'none';
+                // Avvisa Python che vogliamo eliminare la foto impostando il valore a 1
+                document.getElementById('elimina_foto_profilo_flag').value = '1';
+            }
+        </script>
+
         <div class="profilo-row">
             <label>{{ terapeuta_form.numero_telefono.label }}</label>
             <div class="input-box">
@@ -112,7 +148,10 @@
                             <label class="studio-suggerito-item" data-citta="{{ studio.citta|lower }}">
                                 <div class="studio-content">
                                     <input type="checkbox" name="studi" value="{{ studio.id }}" class="studio-checkbox" {% if studio.id in miei_studi %}checked{% endif %}>
-                                    <span style="font-size: 0.95em;">📍 {{ studio.indirizzo }}, {{ studio.citta }}</span>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                        <span style="font-size: 0.95em;">📍 {{ studio.indirizzo }}, {{ studio.citta }}</span>
+                                        <a href="{% url 'utenti:modifica_studio' studio.id %}" style="font-size: 0.85em; color: #007bff; text-decoration: none;">✏️ Modifica</a>
+                                    </div>
                                 </div>
                             </label>
                         {% endfor %}

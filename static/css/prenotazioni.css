@@ -182,52 +182,139 @@
     display: flex;
     gap: 30px;
     flex-wrap: wrap;
+    align-items: flex-start;
 }
 
+/* LA COLONNA DEGLI STUDI */
 .selezione-studio {
     flex: 1;
-    min-width: 250px;
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
+    min-width: 320px;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid #e1e8ed;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
 }
 
-.studio-radio-label {
+/* Nascondiamo il classico pallino del radio button */
+.hidden-radio {
+    display: none;
+}
+
+/* La label diventa il contenitore cliccabile */
+.studio-card-label {
     display: block;
-    background: #fff;
-    border: 1px solid #ccc;
-    padding: 12px 15px;
-    border-radius: 4px;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     cursor: pointer;
-    transition: all 0.2s;
 }
 
-.studio-radio-label:hover {
+/* L'interno della Card dello studio */
+.studio-card-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Spinge la spunta tutta a destra */
+    background: #fdfdfd;
+    border: 2px solid #e1e8ed;
+    border-radius: 10px;
+    padding: 15px 20px; 
+    transition: all 0.3s ease;
+}
+
+/* Effetto al passaggio del mouse */
+.studio-card-label:hover .studio-card-content {
+    border-color: #a3c9b3;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+}
+
+/* Effetto quando lo studio è SELEZIONATO */
+.hidden-radio:checked + .studio-card-content {
     border-color: #2e8b57;
-    background-color: #e2f0e6;
+    background-color: #f4fbf7;
+    box-shadow: 0 4px 12px rgba(46, 139, 87, 0.15);
 }
 
-.studio-radio-label input[type="radio"] {
-    margin-right: 10px;
-    accent-color: #2e8b57;
+/* L'immagine in miniatura */
+.studio-card-img {
+    width: 65px;
+    height: 65px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 15px;
+    border: 1px solid #eee;
 }
 
+/* Il placeholder se non c'è la foto */
+.studio-card-img-placeholder {
+    width: 65px;
+    height: 65px;
+    background: #f0f4f8;
+    border-radius: 8px;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8em;
+    color: #a0aec0;
+}
+
+.studio-card-text {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.studio-indirizzo {
+    font-weight: bold;
+    color: #2c3e50;
+    font-size: 1.05em;
+}
+
+.studio-citta {
+    color: #666;
+    font-size: 0.9em;
+    margin-top: 4px;
+}
+
+/* Icona di spunta (appare solo se selezionato) */
+.check-icon {
+    margin-left: 10px;
+    background: #2e8b57;
+    color: white;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9em;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.3s ease;
+}
+
+.hidden-radio:checked + .studio-card-content .check-icon {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* LA COLONNA DEL CALENDARIO */
 .calendario-container {
     flex: 1;
-    min-width: 300px;
+    min-width: 320px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: #fff;
-    padding: 20px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid #e1e8ed;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
     /* Opacità ridotta finché non si seleziona uno studio */
     opacity: 0.5; 
     pointer-events: none; 
-    transition: opacity 0.3s;
+    transition: opacity 0.4s ease;
 }
 
 .calendario-container.attivo {
@@ -235,10 +322,47 @@
     pointer-events: auto;
 }
 
-/* Contenitore per i futuri bottoncini degli orari */
+/* Contenitore per i bottoncini degli orari */
 #slot-orari-container {
-    margin-top: 20px;
+    margin-top: 25px;
     width: 100%;
+}
+
+/* Nuova grafica per i bottoni degli Slot Orari */
+.btn-slot-orario {
+    padding: 10px 15px;
+    background-color: #fff;
+    border: 2px solid #2e8b57;
+    color: #2e8b57;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1 1 calc(33.333% - 10px);
+    text-align: center;
+}
+
+.btn-slot-orario {
+    padding: 10px 15px;
+    background-color: #fff;
+    border: 2px solid #2e8b57;
+    color: #2e8b57;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    width: 100%; /* Si adatterà perfettamente alla griglia JS */
+    box-sizing: border-box;
+}
+
+.btn-slot-orario:hover {
+    background-color: #2e8b57;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(46, 139, 87, 0.2);
 }
 
 /* =========================================

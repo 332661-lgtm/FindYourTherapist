@@ -88,7 +88,7 @@ class UserUpdateForm(forms.ModelForm):
 class PazienteUpdateForm(forms.ModelForm):
     class Meta:
         model = Paziente
-        fields = ['numero_telefono', 'data_nascita', 'indirizzo', 'CF']
+        fields =  ['numero_telefono', 'data_nascita', 'indirizzo', 'CF']
         widgets = {
             'data_nascita': forms.DateInput(attrs={'type': 'date'})
         }
@@ -103,8 +103,9 @@ class TerapeutaUpdateForm(forms.ModelForm):
     
     class Meta:
         model = Terapeuta
-        fields = ['numero_telefono', 'prezzo', 'descrizione', 'studi', 'specializzazioni', 'pec']
+        fields = ['foto_profilo', 'numero_telefono', 'prezzo', 'descrizione', 'studi', 'specializzazioni', 'pec']
         labels = {
+            'foto_profilo': 'Foto di profilo',
             'numero_telefono': 'Numero di telefono',
             'pec': 'PEC',
             'prezzo': 'Prezzo a seduta (€)',
@@ -114,6 +115,7 @@ class TerapeutaUpdateForm(forms.ModelForm):
             'link_ordine': 'Link all\'ordine degli psicologi'
         }
         widgets = {
+            'foto_profilo': forms.FileInput(),
             # Blocchiamo il resize via CSS in linea e mettiamo il maxlength a 500
             'descrizione': forms.Textarea(attrs={'rows': 4, 'maxlength': '500', 'style': 'resize: none;'}),
             'specializzazioni': forms.CheckboxSelectMultiple(),

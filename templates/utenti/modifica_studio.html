@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/profilo.css' %}?v=6">
+{% endblock %}
+
+{% block contenuto %}
+<div class="profilo-container" style="max-width: 500px; margin-top: 60px;">
+    <div class="profilo-header">
+        <h2>Modifica Sede</h2>
+        <p>Aggiorna i dettagli o l'immagine di questo ambulatorio.</p>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Città</label>
+            <input type="text" name="citta" value="{{ studio.citta }}" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+
+        <div style="margin-bottom: 25px;">
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Indirizzo completo</label>
+            <input type="text" name="indirizzo" value="{{ studio.indirizzo }}" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+
+        <div style="margin-bottom: 25px;">
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Nuova Foto dello Studio (lascia vuoto per mantenere l'attuale)</label>
+            
+            {% if studio.foto_studio %}
+                <div id="preview-foto-studio" style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                    <img src="{{ studio.foto_studio.url }}" alt="Foto attuale" style="width: 100px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    
+                    <button type="button" onclick="eliminaFotoStudio()" style="background: #fff5f5; border: 1px solid #d9534f; color: #d9534f; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 0.85em; transition: 0.3s;">
+                        ✖ Rimuovi foto
+                    </button>
+                </div>
+            {% endif %}
+            
+            <input type="file" name="foto_studio" accept="image/*">
+            <input type="hidden" name="elimina_foto_studio" id="elimina_foto_studio_flag" value="0">
+        </div>
+
+        <script>
+            function eliminaFotoStudio() {
+                document.getElementById('preview-foto-studio').style.display = 'none';
+                document.getElementById('elimina_foto_studio_flag').value = '1';
+            }
+        </script>
+
+        <div style="display: flex; gap: 10px;">
+            <a href="{% url 'utenti:profilo_terapeuta' %}" class="btn-secondary-small" style="text-decoration: none; text-align: center; width: 40%; display: block; padding: 12px;">Annulla</a>
+            <button type="submit" class="profilo-btn-salva" style="margin-top: 0; width: 60%;">Salva Modifiche</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

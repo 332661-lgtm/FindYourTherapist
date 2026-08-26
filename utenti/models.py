@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 class Studio(models.Model):
     indirizzo = models.CharField(max_length=200)
     citta = models.CharField(max_length=100)
+    foto_studio = models.ImageField(upload_to='foto_studi/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.indirizzo} - {self.citta}"
@@ -31,6 +32,7 @@ class Paziente(models.Model):
     numero_telefono = models.CharField(max_length=15, blank=True, null=True)
     indirizzo = models.CharField(max_length=200, blank=True, null=True)
     CF = models.CharField(max_length=16, blank=True, null=True)  # Codice Fiscale
+    
 
     def __str__(self):
         # I nomi e cognomi ora li peschiamo dal modello User di Django
@@ -58,6 +60,7 @@ class Terapeuta(models.Model):
     pec = models.EmailField(max_length=254, blank=True, null=True)  # PEC del terapeuta
     verified = models.BooleanField(default=False)  # Campo per indicare se il terapeuta è verificato
     link_ordine = models.URLField(max_length=200, blank=True, null=True)  # Link all'ordine degli psicologi
+    foto_profilo = models.ImageField(upload_to='foto_profili/terapeuti/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
