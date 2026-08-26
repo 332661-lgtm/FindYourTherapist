@@ -2,12 +2,15 @@
 {% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=1">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=3">
 {% endblock %}
 
 {% block contenuto %}
 <div class="auth-container">
     <h2 class="auth-title">Registrazione Paziente</h2>
+    <p style="text-align: center; color: #666; margin-bottom: 20px;">
+        Crea il tuo profilo per iniziare a prenotare le sedute con i nostri professionisti.
+    </p>
 
     <form method="POST">
         {% csrf_token %}
@@ -17,14 +20,16 @@
                 <label for="{{ field.id_for_label }}">
                     {{ field.label }}
                     {% if field.field.required %}
-                        <span class="asterisk">*</span>
+                        <span class="asterisk" style="color: #d9534f; font-weight: bold;">*</span>
                     {% endif %}
                 </label>
                 
                 <div class="input-wrapper">
                     {{ field }}
                     {% if field.errors %}
-                        {{ field.errors }}
+                        <div class="error-text" style="color: #d9534f; font-size: 0.85em; margin-top: 5px;">
+                            {{ field.errors|striptags }}
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -32,7 +37,7 @@
         
         <div style="margin-top: 30px;">
             <p style="font-size: 0.85em; color: #666; text-align: center; margin-bottom: 15px;">
-                I campi contrassegnati con <span class="asterisk">*</span> sono obbligatori.
+                I campi contrassegnati con <span style="color: #d9534f; font-weight: bold;">*</span> sono obbligatori.
             </p>
             <button type="submit" class="btn-submit">
                 Registrati

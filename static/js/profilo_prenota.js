@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function() {
             // Trova quale studio è attualmente selezionato nei radio button
             const studioSelezionato = document.querySelector('.radio-studio:checked');
             if(!studioSelezionato) return;
-
+            document.getElementById('descrizione-container').style.display = 'block';
             contenitoreSlot.innerHTML = `<p style="text-align:center; color: #2e8b57;">Ricerca orari disponibili...</p>`;
             
             // 1. CHIAMATA ALLA NOSTRA API PYTHON
@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function() {
                             document.getElementById('hidden_studio_id').value = studioSelezionato.value;
                             document.getElementById('hidden_data').value = dateStr;
                             document.getElementById('hidden_ora').value = ora;
-                            
+                            document.getElementById('hidden_descrizione').value = document.getElementById('descrizione-input').value;
                             // Invio formale al database!
                             document.getElementById('form-conferma-prenotazione').submit();
                         }

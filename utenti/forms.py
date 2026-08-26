@@ -103,7 +103,7 @@ class TerapeutaUpdateForm(forms.ModelForm):
     
     class Meta:
         model = Terapeuta
-        fields = ['foto_profilo', 'numero_telefono', 'prezzo', 'descrizione', 'studi', 'specializzazioni', 'pec']
+        fields = ['foto_profilo', 'numero_telefono', 'prezzo', 'descrizione', 'studi', 'specializzazioni', 'pec', 'link_ordine']
         labels = {
             'foto_profilo': 'Foto di profilo',
             'numero_telefono': 'Numero di telefono',

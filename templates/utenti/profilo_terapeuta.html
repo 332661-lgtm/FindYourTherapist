@@ -88,6 +88,14 @@
         </div>
 
         <div class="profilo-row">
+            <label>{{ terapeuta_form.link_ordine.label }}</label>
+            <div class="input-box">
+                {{ terapeuta_form.link_ordine }}
+                {% if terapeuta_form.link_ordine.errors %}<span class="error-text">{{ terapeuta_form.link_ordine.errors|striptags }}</span>{% endif %}
+            </div>
+        </div>
+
+        <div class="profilo-row">
             <label>{{ terapeuta_form.prezzo.label }}</label>
             <div class="input-box">
                 {{ terapeuta_form.prezzo }}

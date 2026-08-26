@@ -33,6 +33,14 @@
                     <div class="card-dettagli">
                         <strong style="font-size: 1.1em; color: #333;">
                             Ore {{ appuntamento.data_ora|time:"H:i" }}
+                            <span style="font-size: 0.85em; color: #888; display: block; margin-top: 5px;">⏳ Durata: {{ appuntamento.durata_minuti }} min</span>
+                        
+                            <!-- MOTIVAZIONE / DESCRIZIONE DELLA SEDUTA -->
+                            {% if appuntamento.descrizione %}
+                                <div style="font-size: 0.9em; color: #555; background: #f8f9fa; padding: 8px 12px; border-radius: 6px; margin-top: 10px; border-left: 3px solid #2e8b57; font-style: italic;">
+                                    📝 Motivo: "{{ appuntamento.descrizione }}"
+                                </div>
+                            {% endif %}
                             
                             <!-- IL BADGE DELLE NOTIFICHE -->
                             {% if appuntamento.id in nuovi_id %}

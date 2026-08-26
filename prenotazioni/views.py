@@ -233,15 +233,20 @@ class CreaPrenotazioneVeloceView(LoginRequiredMixin, View):
         terapeuta = get_object_or_404(Terapeuta, id=request.POST.get('terapeuta_id'))
         data_str = request.POST.get('data')
         ora_str = request.POST.get('ora')
+        
+        # 1. Recuperiamo la descrizione scritta dal paziente
+        descrizione_testo = request.POST.get('descrizione', '')
 
         data_ora_naive = datetime.strptime(f"{data_str} {ora_str}", "%Y-%m-%d %H:%M")
         data_ora_ufficiale = timezone.make_aware(data_ora_naive)
 
+        # 2. Creiamo la prenotazione inserendo anche la descrizione
         Prenotazione.objects.create(
             paziente=request.user.paziente,
             terapeuta=terapeuta,
             data_ora=data_ora_ufficiale,
-            durata_minuti=60 
+            durata_minuti=60,
+            descrizione=descrizione_testo  # <--- IL CAMPO AGGIUNTO
         )
         
         messages.success(request, f"Richiesta inviata! Attendi la conferma dal Dott. {terapeuta.user.last_name}.")

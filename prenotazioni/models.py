@@ -10,6 +10,7 @@ class Prenotazione(models.Model):
     data_ora = models.DateTimeField() 
     durata_minuti = models.PositiveIntegerField(default=60)
     letta_da_medico = models.BooleanField(default=False)
+    descrizione = models.TextField(blank=True, null=True, help_text="Descrizione della seduta (opzionale)")
     nascosta_paziente = models.BooleanField(default=False)
     nascosta_terapeuta = models.BooleanField(default=False)
     

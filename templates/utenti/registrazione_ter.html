@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=3">
 {% endblock %}
 
 {% block contenuto %}
@@ -17,7 +17,13 @@
         
         {% for field in form %}
             <div class="form-row">
-                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                    {% if field.field.required %}
+                        <span class="asterisk" style="color: #d9534f; font-weight: bold;">*</span>
+                    {% endif %}
+                </label>
+                
                 <div class="input-wrapper">
                     {{ field }}
                     {% if field.errors %}
@@ -30,6 +36,9 @@
         {% endfor %}
 
         <div style="margin-top: 30px;">
+            <p style="font-size: 0.85em; color: #666; text-align: center; margin-bottom: 15px;">
+                I campi contrassegnati con <span style="color: #d9534f; font-weight: bold;">*</span> sono obbligatori.
+            </p>
             <button type="submit" class="btn-submit">Crea Account Terapeuta</button>
         </div>
     </form>

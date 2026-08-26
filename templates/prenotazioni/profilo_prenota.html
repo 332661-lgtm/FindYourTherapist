@@ -36,7 +36,7 @@
             <div class="bio-quote">"{{ terapeuta.descrizione }}"</div>
         {% endif %}
     </div>
-    
+
     <!-- SEZIONE INTERATTIVA: STUDIO -> CALENDARIO -> ORARI -->
     <h3 style="color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 40px;">Prenota un appuntamento</h3>
     
@@ -96,6 +96,12 @@
                 <!-- I bottoni degli orari appariranno qui tramite JS -->
             </div>
             
+            <!-- Testo opzionale (Nascosto di default) -->
+            <div id="descrizione-container" style="display: none; width: 100%; margin-top: 25px;">
+                <label for="descrizione-input" style="font-weight: bold; display: block; margin-bottom: 5px; color: #2c3e50; font-size: 0.95em;">Motivo della seduta (Opzionale)</label>
+                <textarea id="descrizione-input" rows="2" placeholder="Es: Prima visita per gestione dell'ansia..." style="width: 100%; padding: 10px; border: 2px solid #e1e8ed; border-radius: 8px; resize: vertical; box-sizing: border-box; font-family: inherit; transition: border-color 0.3s;"></textarea>
+            </div>
+
             <!-- FORM INVISIBILE PER L'INVIO FINALE -->
             <form id="form-conferma-prenotazione" method="POST" action="{% url 'prenotazioni:crea_prenotazione_veloce' %}" style="display: none;">
                 {% csrf_token %}
@@ -103,6 +109,9 @@
                 <input type="hidden" name="studio_id" id="hidden_studio_id">
                 <input type="hidden" name="data" id="hidden_data">
                 <input type="hidden" name="ora" id="hidden_ora">
+                
+                <!-- ECCO LA RIGA CHE MANCAVA! -->
+                <input type="hidden" name="descrizione" id="hidden_descrizione">
             </form>
         </div>
 
