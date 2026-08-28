@@ -8,7 +8,6 @@
 {% block contenuto %}
 <div style="max-width: 1100px; margin: 0 auto; padding: 20px 10px;">
 
-    <!-- MESSAGGIO DINAMICO IN BASE AL PROFILO -->
     {% if user.is_authenticated %}
         <div class="welcome-box">
             <div>
@@ -34,7 +33,6 @@
             </div>
         </div>
     {% else %}
-        <!-- HERO SECTION PER UTENTI ANONIMI -->
         <section class="hero-section">
             <h1>FindYourTherapist</h1>
             <p>La piattaforma web progettata per semplificare e ottimizzare l'incontro tra professionisti della salute mentale e pazienti. Gestisci ricerca, appuntamenti e archiviazione clinica in un unico ecosistema sicuro.</p>
@@ -42,7 +40,6 @@
         </section>
     {% endif %}
 
-    <!-- SPIEGAZIONE DEL FUNZIONAMENTO SUDDIVISA PER CATEGORIA -->
     <h3 style="color: #333; margin-top: 40px; text-align: center; font-size: 1.5em;">Come funziona la piattaforma</h3>
     <p style="text-align: center; color: #666; margin-bottom: 30px;">Scopri le funzionalità dedicate a seconda del tuo profilo d'accesso:</p>
 

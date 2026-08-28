@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Prenotazione, Disponibilita, Assenza
-from utenti.models import RelazioneTerapeutica, CartellaFile, Documento # I nuovi modelli!
+from utenti.models import RelazioneTerapeutica, CartellaFile, Documento 
 from .forms import PrenotazioneForm, DisponibilitaForm, AssenzaForm 
 
 class PrenotazioneAdmin(admin.ModelAdmin):

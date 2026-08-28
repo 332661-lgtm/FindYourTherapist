@@ -13,7 +13,7 @@ class PrenotazioneLogicTest(TestCase):
     Verifichiamo che il sistema riconosca gli appuntamenti sovrapposti.
     """
     def setUp(self):
-        # 1. Prepariamo i dati fittizi nel database di test (viene distrutto a fine test)
+        # 1. Prepariamo i dati fittizi nel database di test (mock)
         self.user_medico = User.objects.create_user(username='medico_test', password='password123')
         self.user_paziente = User.objects.create_user(username='paziente_test', password='password123')
 

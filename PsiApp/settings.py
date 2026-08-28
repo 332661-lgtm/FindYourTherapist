@@ -38,8 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'utenti.apps.UtentiConfig',  # Aggiungi l'app "utenti" al progetto
-    'prenotazioni.apps.PrenotazioniConfig',  # Aggiungi l'app "prenotazioni" al progetto
+    'utenti.apps.UtentiConfig',  
+    'prenotazioni.apps.PrenotazioniConfig',  
 ]
 
 MIDDLEWARE = [
@@ -122,6 +122,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 LOGOUT_REDIRECT_URL = 'home'
@@ -132,4 +133,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/' 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Email backend for development
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

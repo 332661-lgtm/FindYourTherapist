@@ -1,6 +1,4 @@
 document.addEventListener("DOMContentLoaded", function() {
-    
-    // 1. Recuperiamo la mappa generata dalla Vista Python tramite il tag <script> nascosto
     const dataElement = document.getElementById('mappa-giorni-data');
     if (!dataElement) return; // Evita crash se l'elemento non esiste
     
@@ -23,7 +21,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         ],
         onChange: function(selectedDates, dateStr, instance) {
-            // Trova quale studio è attualmente selezionato nei radio button
             const studioSelezionato = document.querySelector('.radio-studio:checked');
             if(!studioSelezionato) return;
             document.getElementById('descrizione-container').style.display = 'block';
@@ -38,9 +35,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 contenitoreSlot.innerHTML = `<h5 style="margin-bottom:10px;">Orari disponibili per il ${dateStr}:</h5>`;
                 
                 const slotContainer = document.createElement('div');
-                // Sostituiamo Flexbox con CSS Grid per bloccare le dimensioni!
                 slotContainer.style.display = 'grid';
-                slotContainer.style.gridTemplateColumns = 'repeat(3, 1fr)'; // Esattamente 3 colonne uguali
+                slotContainer.style.gridTemplateColumns = 'repeat(3, 1fr)';
                 slotContainer.style.gap = '10px';
 
                 if(data.slots.length === 0) {
@@ -51,7 +47,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 // 2. CREAZIONE DEI BOTTONI PER OGNI ORARIO
                 data.slots.forEach(ora => {
                     const btn = document.createElement('button');
-                    // CAMBIA QUI: usa la nuova classe CSS
                     btn.className = 'btn-slot-orario'; 
                     btn.textContent = ora;
                     btn.type = 'button';
@@ -59,12 +54,10 @@ document.addEventListener("DOMContentLoaded", function() {
                     // 3. IL CLICK CHE INVIA LA PRENOTAZIONE (IL POP-UP)
                     btn.onclick = function() {
                         if(confirm(`Sei sicuro di voler inviare la richiesta di prenotazione per le ${ora}? (Durata: 1 ora)`)) {
-                            // Riempiamo il form invisibile con i dati precisi
                             document.getElementById('hidden_studio_id').value = studioSelezionato.value;
                             document.getElementById('hidden_data').value = dateStr;
                             document.getElementById('hidden_ora').value = ora;
                             document.getElementById('hidden_descrizione').value = document.getElementById('descrizione-input').value;
-                            // Invio formale al database!
                             document.getElementById('form-conferma-prenotazione').submit();
                         }
                     };
@@ -81,31 +74,25 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // 3. Logica di interazione: Quando si seleziona uno Studio dai Radio Button
-    // 3. Logica di interazione: Quando si seleziona uno Studio dai Radio Button
     radioStudi.forEach(radio => {
         radio.addEventListener('change', function() {
             const idStudioSelezionato = this.value;
             const giorniAttivi = mappaGiorni[idStudioSelezionato] || [];
-
-            // --- NUOVA LOGICA: MOSTRA LA FOTO DELLO STUDIO IN GRANDE ---
             const imgUrl = this.getAttribute('data-img');
             const previewBox = document.getElementById('studio-image-preview');
             const imgTag = document.getElementById('studio-img-tag');
 
             if (imgUrl && imgUrl.trim() !== '') {
                 imgTag.src = imgUrl;
-                previewBox.style.display = 'block'; // Mostra il box
+                previewBox.style.display = 'block'; 
             } else {
-                previewBox.style.display = 'none'; // Nascondi se non c'è foto
+                previewBox.style.display = 'none';
             }
-            // -----------------------------------------------------------
 
-            // Accendiamo visivamente il box del calendario
             boxCalendario.classList.add('attivo');
             avvisoCalendario.style.display = 'none';
-            contenitoreSlot.innerHTML = ''; // Puliamo eventuali vecchi slot
+            contenitoreSlot.innerHTML = '';
 
-            // Aggiorniamo dinamicamente le regole di Flatpickr
             calendario.set('disable', [
                 function(date) {
                     const giornoSettimana = date.getDay();

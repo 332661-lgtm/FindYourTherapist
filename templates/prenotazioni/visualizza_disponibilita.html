@@ -11,7 +11,6 @@
         <h2>Gestione Calendario</h2>
     </div>
 
-    <!-- IL MENU MAGICO -->
     <div class="tabs-menu">
         <a href="{% url 'prenotazioni:visualizza_disponibilita' %}" class="tab-link attivo">I Miei Turni</a>
         <a href="{% url 'prenotazioni:disponibilita' %}" class="tab-link">Aggiungi Turno</a>
@@ -20,27 +19,20 @@
     </div>
 
     {% if disponibilita %}
-        <!-- LA MAGIA DI DJANGO: Raggruppa la lista in base alla scritta del giorno -->
         {% regroup disponibilita by get_giorno_display as turni_per_giorno %}
         
-        <!-- Ciclo esterno: itera sui giorni (Lunedì, Martedì...) -->
         {% for gruppo in turni_per_giorno %}
             
-            <!-- Intestazione elegante per il Giorno -->
             <h3 style="color: #2e8b57; border-bottom: 2px solid #e2f0e6; padding-bottom: 5px; margin-top: 30px;">
                 {{ gruppo.grouper }}
             </h3>
             
-            <!-- Ciclo interno: itera sui turni specifici di QUEL giorno -->
             {% for disp in gruppo.list %}
                 <div class="card-lista" style="margin-bottom: 12px; border-left: 4px solid #2e8b57;">
                     <div class="card-dettagli">
-                        <!-- Ho rimosso il giorno da qui perché è già nel titolo! -->
                         <span>Dalle <strong>{{ disp.ora_inizio|time:"H:i" }}</strong> alle <strong>{{ disp.ora_fine|time:"H:i" }}</strong></span>
                         <span style="font-size: 0.85em; color: #666; display: block; margin-top: 5px;">📍 {{ disp.studio.indirizzo }}, {{ disp.studio.citta }}</span>
                     </div>
-                    
-                    <!-- IL FORM DI ELIMINAZIONE RIMANE INTATTO! Usa disp.pk senza problemi -->
                     <form method="POST" action="{% url 'prenotazioni:elimina_disponibilita' disp.pk %}" onsubmit="return confirm('Sei sicuro di voler eliminare questo turno?');">
                         {% csrf_token %}
                         <button type="submit" style="background: none; border: none; color: #d9534f; font-size: 1.8em; cursor: pointer; font-weight: bold; padding: 0 10px;" title="Elimina turno">

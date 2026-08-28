@@ -8,7 +8,6 @@
 {% block contenuto %}
 <div class="vetrina-container">
     
-    <!-- SINISTRA: Modulo dei Filtri -->
     <aside class="sidebar-filtri">
         <h3>Filtra Terapeuti</h3>
         <form method="GET" action="{% url 'utenti:vetrina' %}" id="filtri-form">
@@ -28,28 +27,24 @@
                 </datalist>
             </div>
 
-            <!-- IL NUOVO SISTEMA A TAG -->
             <div class="filter-group">
                 <label>Specializzazioni</label>
                 <div class="multi-input-group">
                     <input type="text" id="spec-input" list="spec-list" placeholder="Es. Ansia...">
                     <datalist id="spec-list">
                         {% for spec in specializzazioni %}
-                            <!-- data-id ci serve per passare il numero corretto a Django -->
                             <option data-id="{{ spec.id }}" value="{{ spec.nome }}"></option>
                         {% endfor %}
                     </datalist>
                     <button type="button" id="add-spec-btn" class="btn-secondary-small">Aggiungi</button>
                 </div>
 
-                <!-- Qui dentro finiscono i bottoncini creati dall'utente o ricaricati da Django -->
                 <div id="tags-container" class="tags-container">
                     {% for spec in specializzazioni %}
                         {% if spec.id in valori_scelti.specializzazioni %}
                             <div class="spec-tag">
                                 {{ spec.nome }}
                                 <span class="remove-tag" onclick="removeTag(this)">×</span>
-                                <!-- Questo è il vero dato che Django legge -->
                                 <input type="hidden" name="specializzazione" value="{{ spec.id }}">
                             </div>
                         {% endif %}
@@ -67,15 +62,10 @@
         </form>
     </aside>
 
-    <!-- DESTRA: Risultati -->
-    <!-- DESTRA: Risultati -->
     <section class="risultati-container">
         
-        <!-- CAMBIO: Ora iteriamo su page_obj invece che su terapeuti -->
         {% for terapeuta in page_obj %}
             <div class="terapeuta-card" style="display: flex; gap: 20px; align-items: flex-start;">
-                
-                <!-- IL BLOCCO DELLA FOTO -->
                 <div class="terapeuta-foto" style="flex-shrink: 0;">
                     {% if terapeuta.foto_profilo %}
                         <img src="{{ terapeuta.foto_profilo.url }}" alt="Foto" style="width: 110px; height: 110px; object-fit: cover; border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
@@ -86,10 +76,8 @@
                 
                 <div class="terapeuta-info">
                     
-                    <!-- CORREZIONE: Aggiunto Flexbox all'h4 per allineare la spunta! -->
                     <h4 style="display: flex; align-items: center; margin-bottom: 15px;">
                         Dott. {{ terapeuta.user.first_name }} {{ terapeuta.user.last_name }}
-                        <!-- LA LOGICA DELLA SPUNTA -->
                         {% if terapeuta.verified %}
                             <span class="spunta-badge spunta-blu" title="Medico Verificato">✓</span>
                         {% else %}
@@ -138,8 +126,6 @@
             </div>
         {% endfor %}
         
-        
-        <!-- I BOTTONI DI IMPAGINAZIONE -->
         {% if page_obj.has_other_pages %}
             <div class="paginazione-container" style="text-align: center; margin-top: 40px; padding: 20px; background: #fff; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                 
@@ -164,7 +150,6 @@
     </section>
 </div>
 
-<!-- SCRIPT PER GESTIRE I TAG DINAMICI -->
 <script>
     document.getElementById('add-spec-btn').addEventListener('click', function() {
         const input = document.getElementById('spec-input');
@@ -172,12 +157,11 @@
         const tagsContainer = document.getElementById('tags-container');
         const val = input.value.trim();
 
-        if (!val) return; // Se l'utente clicca ma la barra è vuota, ignora
+        if (!val) return; 
 
         let specId = null;
         let specName = null;
         
-        // Cerca nella lista nascosta se quello che l'utente ha scritto esiste davvero
         for (let option of datalist.options) {
             if (option.value === val) {
                 specId = option.getAttribute('data-id');
@@ -187,10 +171,7 @@
         }
 
         if (specId) {
-            // Controlla se il tag è già stato aggiunto per evitare doppioni
             if (!document.querySelector('input[name="specializzazione"][value="'+specId+'"]')) {
-                
-                // Crea il nuovo elemento visivo e l'input nascosto per Django
                 const tag = document.createElement('div');
                 tag.className = 'spec-tag';
                 tag.innerHTML = `
@@ -200,13 +181,12 @@
                 `;
                 tagsContainer.appendChild(tag);
             }
-            input.value = ''; // Svuota la barra di ricerca pronto per il prossimo
+            input.value = ''; 
         } else {
             alert('Seleziona una specializzazione valida suggerita dal menu a tendina.');
         }
     });
 
-    // Funzione per eliminare il tag se l'utente clicca la X
     function removeTag(element) {
         element.parentElement.remove();
     }
@@ -217,14 +197,12 @@
         const cards = document.querySelectorAll('.terapeuta-card');
         
         cards.forEach(card => {
-            // Cerchiamo il tag <h4> che contiene il nome del dottore
             const nome = card.querySelector('h4').textContent.toLowerCase();
             
-            // Se il nome contiene le lettere digitate, lo mostriamo, altrimenti lo nascondiamo
             if (nome.includes(query)) {
-                card.style.display = ''; // Ripristina il display originale
+                card.style.display = ''; 
             } else {
-                card.style.display = 'none'; // Nasconde la card
+                card.style.display = 'none'; 
             }
         });
     });

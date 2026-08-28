@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block extra_css %}
-    <!-- Colleghiamo il file CSS rigorosamente separato -->
     <link rel="stylesheet" href="{% static 'css/profilo.css' %}?v=1">
 {% endblock %}
 
@@ -19,7 +18,6 @@
 
         <h3 class="form-section-title">Credenziali di Accesso</h3>
         
-        <!-- Ciclo sul Form dell'Utente Base (Nome, Cognome, Email) -->
         {% for field in user_form %}
             <div class="profilo-row">
                 <label for="{{ field.id_for_label }}">{{ field.label }}</label>
@@ -34,7 +32,6 @@
 
         <h3 class="form-section-title">Dati Anagrafici e Contatti</h3>
         
-        <!-- Ciclo sul Form del Paziente (Telefono, Data di nascita, Indirizzo) -->
         {% for field in paziente_form %}
             <div class="profilo-row">
                 <label for="{{ field.id_for_label }}">{{ field.label }}</label>

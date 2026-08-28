@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block extra_css %}
-    <!-- Richiama il file CSS separato -->
     <link rel="stylesheet" href="{% static 'css/lista_pazienti.css' %}?v=1">
 {% endblock %}
 
@@ -14,7 +13,6 @@
         <p style="color: #666;">Archivio clinico, storico sedute e condivisione file.</p>
     </div>
 
-    <!-- Barra di ricerca -->
     <form method="GET" class="search-bar-container">
         <input type="text" name="q" class="search-input" placeholder="Cerca paziente per nome o cognome..." value="{{ query }}">
         <button type="submit" class="search-btn">Cerca</button>
@@ -25,7 +23,6 @@
 
     {% if page_obj %}
         {% for paziente in page_obj %}
-            <!-- ACCORDION PRINCIPALE (PAZIENTE) -->
             <details>
                 <summary>
                     <span style="font-size: 1.1em;">👤 {{ paziente.user.first_name }} {{ paziente.user.last_name }}</span>
@@ -43,7 +40,6 @@
                     <!-- 1. SEZIONE COLLOQUI -->
                     <details class="sub-details">
                         <summary class="sub-summary">
-                            <!-- CALCOLO TOTALE COLLOQUI PER IL SOTTOMENU -->
                             {% with futuri_c=paziente.futuri|length passati_c=paziente.passati|length %}
                                 <span>📅 Colloqui ({{ futuri_c|add:passati_c }})</span>
                             {% endwith %}
@@ -65,7 +61,6 @@
                                 <p style="font-size: 0.85em; color:#999;">Nessun colloquio futuro.</p>
                             {% endfor %}
 
-                            <!-- COLLOQUI CANCELLATI A SCOMPARSA -->
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
                                 <span style="font-size: 0.9em; color: #d9534f; font-weight: bold;">Colloqui Annullati</span>
                                 <button type="button" onclick="toggleBox(this)" style="background: none; color: #d9534f; border: 1px solid #d9534f; padding: 2px 10px; border-radius: 15px; cursor: pointer; font-size: 0.8em;">
@@ -88,7 +83,6 @@
                                 {% endfor %}
                             </div>
 
-                            <!-- FATTI A SCOMPARSA (Tendina) -->
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
                                 <span style="font-size: 0.9em; color: #666; font-weight: bold;">Colloqui Fatti</span>
                                 <button type="button" onclick="toggleBox(this)" style="background: none; color: #666; border: 1px solid #666; padding: 2px 10px; border-radius: 15px; cursor: pointer; font-size: 0.8em;">
@@ -116,18 +110,15 @@
                         </div>
                     </details>
 
-                    <!-- 2. SEZIONE CARTELLA PRIVATA MEDICO -->
                     <details class="sub-details">
                         <summary class="sub-summary">
                             <span>📁 Cartella Privata (solo medico)</span>
                         </summary>
                         <div class="sub-content">
-                            <!-- Bottone aderente allo stile -->
                             <button class="btn-principale btn-nuova-cartella" data-paziente-id="{{ paziente.id }}" data-condivisa="false" style="padding: 8px 15px; font-size: 0.9em; margin-bottom: 15px; display: inline-block;">
                                 ➕ Nuova Cartella
                             </button>
                             
-                            <!-- FILE NELLA CARTELLA PRINCIPALE -->
                             {% if paziente.cartella_privata %}
                                 {% for doc in paziente.cartella_privata.documenti.all %}
                                     <div class="colloquio-item" style="align-items: center; background: #fdfdfd; padding: 10px; border-radius: 6px; border: 1px solid #eee; margin-bottom: 5px;">
@@ -138,7 +129,6 @@
                                     </div>
                                 {% endfor %}
 
-                                <!-- SOTTOCARTELLE CREATE -->
                                 {% for cartella in paziente.cartella_privata.sottocartelle.all %}
                                     <details style="margin-top: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px;">
                                         <summary style="padding: 10px 15px; font-size: 0.95em; background: #f1f1f1; display:flex; align-items:center;">
@@ -147,7 +137,6 @@
                                         </summary>
                                         
                                         <div style="padding: 15px;">
-                                            <!-- I file dentro la cartella specifica -->
                                             {% for doc in cartella.documenti.all %}
                                                 <div class="colloquio-item" style="align-items: center; padding: 8px; border-bottom: 1px solid #eee;">
                                                     <a href="{{ doc.file.url }}" target="_blank" style="text-decoration:none; color:#333;">📄 {{ doc.nome_originale }}</a>
@@ -250,7 +239,6 @@
             </details> 
         {% endfor %}
 
-        <!-- Paginazione -->
         {% if page_obj.has_other_pages %}
             <div class="paginazione-container" style="text-align: center; margin-top: 40px;">
                 {% if page_obj.has_previous %}
@@ -280,6 +268,5 @@
 {% endblock %}
 
 {% block extra_js %}
-    <!-- Richiama il file JS esterno separato -->
     <script src="{% static 'js/lista_pazienti.js' %}?v=1"></script>
 {% endblock %}

@@ -60,12 +60,12 @@ document.addEventListener("DOMContentLoaded", function() {
         const processaFile = (files) => {
             if (files.length === 0) return;
             
-            const terapeutaId = zone.dataset.terapeutaId; // La differenza chiave dal JS del medico!
+            const terapeutaId = zone.dataset.terapeutaId; 
             const cartellaId = zone.dataset.cartellaId || '';
 
             const formData = new FormData();
             formData.append('terapeuta_id', terapeutaId);
-            formData.append('is_condivisa', 'true'); // Dal lato paziente è SEMPRE condivisa
+            formData.append('is_condivisa', 'true'); 
             formData.append('cartella_id', cartellaId);
             
             for(let i=0; i < files.length; i++){

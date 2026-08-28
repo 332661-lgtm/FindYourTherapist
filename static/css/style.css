@@ -2,19 +2,19 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa; /* Grigio chiarissimo per far risaltare il contenuto */
+    background-color: #f8f9fa; 
     color: #333;
 }
 
 /* LA BARRA DI NAVIGAZIONE VERDE */
 .navbar {
-    background-color: #2e8b57; /* Verde "SeaGreen", rilassante e professionale */
+    background-color: #2e8b57; 
     padding: 15px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    position: sticky; /* Rimane incollata in alto scorrendo la pagina */
+    position: sticky; 
     top: 0;
     z-index: 1000;
 }
@@ -31,7 +31,7 @@ body {
 }
 
 .navbar a:hover {
-    background-color: #1f633d; /* Verde più scuro al passaggio del mouse */
+    background-color: #1f633d; 
 }
 
 .nav-logo {
@@ -41,10 +41,9 @@ body {
 
 .nav-links {
     display: flex;
-    gap: 15px; /* Spazio tra i bottoni */
+    gap: 15px; 
 }
 
-/* CONTENITORE PRINCIPALE (Il "Buco") */
 .main-container {
     max-width: 1200px;
     margin: 40px auto;
@@ -54,7 +53,7 @@ body {
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     min-height: 60vh;
 }
-/* Aggiungi questo in fondo al tuo style.css */
+
 /* =========================================
    MENU A TENDINA (DROPDOWN UTENTE LOGGATO)
    ========================================= */
@@ -63,7 +62,6 @@ body {
     display: inline-block;
 }
 
-/* Rimuove lo stile di base dal bottone con l'omino */
 .nav-dropbtn {
     background-color: transparent;
     color: white;
@@ -76,14 +74,13 @@ body {
 }
 
 .nav-dropbtn:hover {
-    transform: scale(1.1); /* L'omino si ingrandisce leggermente al passaggio */
+    transform: scale(1.1); 
 }
 
-/* Il rettangolo bianco nascosto del menu */
 .nav-dropdown-content {
     display: none;
     position: absolute;
-    right: 0; /* Allinea il menu al bordo destro dell'icona */
+    right: 0; 
     background-color: white;
     min-width: 180px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -92,12 +89,10 @@ body {
     overflow: hidden;
 }
 
-/* La magia dell'hover: mostra il menu quando passi sull'icona */
 .nav-dropdown:hover .nav-dropdown-content {
     display: block;
 }
 
-/* Intestazione del menu (Nome Utente) */
 .dropdown-header {
     display: block;
     padding: 12px 16px;
@@ -108,7 +103,6 @@ body {
     font-size: 0.9em;
 }
 
-/* Bottone rosso per il logout */
 .dropdown-logout-btn {
     width: 100%;
     background: none;
@@ -127,10 +121,9 @@ body {
 }
 
 .dropdown-logout-btn:hover {
-    background-color: #ffeaea; /* Sfondo rosso tenue al passaggio */
+    background-color: #ffeaea; 
 }
 
-/* Stile per i bottoni delle opzioni normali (es. Profilo) */
 .dropdown-btn {
     width: 100%;
     background: none;
@@ -141,7 +134,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #333; /* Colore grigio scuro/nero per differenziarlo dal rosso dell'uscita */
+    color: #333; 
     font-weight: bold;
     font-size: 0.9em;
     font-family: inherit;
@@ -149,7 +142,7 @@ body {
 }
 
 .dropdown-btn:hover {
-    background-color: #f1f1f1; /* Sfondo grigio chiaro al passaggio del mouse */
+    background-color: #f1f1f1; 
 }
 
 /* =========================================
@@ -157,17 +150,17 @@ body {
    ========================================= */
 .toast-container {
     position: fixed;
-    bottom: 20px;          /* Distanza dal fondo */
-    left: 20px;            /* Distanza da sinistra (cambia in 'right' se li preferisci a destra) */
-    z-index: 9999;         /* Assicura che stiano sopra a tutto il resto */
+    bottom: 20px;          
+    left: 20px;            
+    z-index: 9999;         
     display: flex;
     flex-direction: column;
-    gap: 10px;             /* Spazio tra più messaggi contemporanei */
-    pointer-events: none;  /* Permette di cliccare gli elementi dietro il contenitore trasparente... */
+    gap: 10px;             
+    pointer-events: none; 
 }
 
 .toast-message {
-    pointer-events: auto;  /* ... ma rende cliccabili i singoli messaggi */
+    pointer-events: auto;  
     min-width: 280px;
     max-width: 400px;
     padding: 16px 20px;
@@ -178,15 +171,13 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* Animazione di entrata scivolando da sinistra */
     animation: slideInLeft 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* Colori in base allo "stato" del messaggio di Django */
-.toast-success { background-color: #2e8b57; } /* Verde scuro */
-.toast-error { background-color: #d9534f; }   /* Rosso */
-.toast-warning { background-color: #f0ad4e; } /* Giallo */
-.toast-info { background-color: #5bc0de; }    /* Azzurro */
+.toast-success { background-color: #2e8b57; }
+.toast-error { background-color: #d9534f; }   
+.toast-warning { background-color: #f0ad4e; } 
+.toast-info { background-color: #5bc0de; }   
 
 .toast-close {
     background: none;
@@ -204,7 +195,6 @@ body {
     opacity: 1;
 }
 
-/* Le animazioni chiave */
 @keyframes slideInLeft {
     from { transform: translateX(-120%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
@@ -225,7 +215,7 @@ body {
     font-size: 1.1em;
     cursor: pointer;
     transition: all 0.2s ease;
-    width: 100px; /* Larghezza fissa per allinearli bene */
+    width: 100px; 
     text-align: center;
 }
 
@@ -250,14 +240,14 @@ body {
     color: white;
     margin-left: 8px;
     vertical-align: middle;
-    cursor: help; /* Cambia il cursore col punto interrogativo per far capire che c'è un tooltip */
+    cursor: help; 
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .spunta-blu {
-    background: linear-gradient(135deg, #0095f6, #0077c5); /* Blu Insta */
+    background: linear-gradient(135deg, #0095f6, #0077c5); 
 }
 
 .spunta-grigia {
-    background: linear-gradient(135deg, #dbdbdb, #b5b5b5); /* Grigio neutro */
+    background: linear-gradient(135deg, #dbdbdb, #b5b5b5); 
 }

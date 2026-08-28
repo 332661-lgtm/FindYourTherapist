@@ -19,11 +19,9 @@
     <h3 style="color: #2e8b57; border-bottom: 2px solid #e2f0e6; padding-bottom: 5px; margin-top: 30px;">In Programma</h3>
     
     {% if prossimi %}
-        <!-- Raggruppiamo per giorno esatto -->
         {% regroup prossimi by data_ora.date as sedute_per_giorno %}
         
         {% for gruppo in sedute_per_giorno %}
-            <!-- Intestazione del singolo giorno formattata in italiano -->
             <h4 class="header-data-gruppo">
                 📅 {{ gruppo.grouper|date:"l j F Y"|title }}
             </h4>
@@ -35,14 +33,12 @@
                             Ore {{ appuntamento.data_ora|time:"H:i" }}
                             <span style="font-size: 0.85em; color: #888; display: block; margin-top: 5px;">⏳ Durata: {{ appuntamento.durata_minuti }} min</span>
                         
-                            <!-- MOTIVAZIONE / DESCRIZIONE DELLA SEDUTA -->
                             {% if appuntamento.descrizione %}
                                 <div style="font-size: 0.9em; color: #555; background: #f8f9fa; padding: 8px 12px; border-radius: 6px; margin-top: 10px; border-left: 3px solid #2e8b57; font-style: italic;">
                                     📝 Motivo: "{{ appuntamento.descrizione }}"
                                 </div>
                             {% endif %}
                             
-                            <!-- IL BADGE DELLE NOTIFICHE -->
                             {% if appuntamento.id in nuovi_id %}
                                 <span class="badge-nuova-notifica" title="Nuova prenotazione">
                                     <span class="pallino-blu-interno"></span> Nuova
@@ -82,13 +78,11 @@
     {% if tipo_utente == 'paziente' %}
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 40px; border-bottom: 2px solid #eee; padding-bottom: 5px;">
             <h3 style="color: #666; margin: 0;">Storico Colloqui</h3>
-            <!-- Il bottone magico -->
             <button id="btn-toggle-storico" class="btn-secondary-small" style="background: none; color: #007bff; border: 1px solid #007bff; padding: 5px 15px; border-radius: 20px; cursor: pointer;">
                 + Mostra effettuati
             </button>
         </div>
         
-        <!-- Questo box è nascosto di default e ha lo scroll interno -->
         <div id="box-storico" style="max-height: 350px; overflow-y: auto; padding-right: 10px; display: none; margin-top: 15px;">
             {% if passati %}
                 <div style="opacity: 0.75;">
@@ -124,7 +118,6 @@
                         {% endif %}
                     </div>
                     
-                    <!-- ATTIVO PER ENTRAMBI: Permette di rimuovere l'avviso dalla propria vista -->
                     <div class="card-azioni">
                         <form method="POST" action="{% url 'prenotazioni:nascondi_prenotazione' appuntamento.id %}">
                             {% csrf_token %}

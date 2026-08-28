@@ -162,7 +162,6 @@ class EliminaPrenotazioneView(LoginRequiredMixin, View):
         try:
             prenotazione = Prenotazione.objects.get(id=prenotazione_id)
             
-            # IL TRUCCO È QUI: confrontiamo direttamente il 'user' associato ai profili!
             if prenotazione.paziente.user == request.user or prenotazione.terapeuta.user == request.user:
                 prenotazione.stato = 'cancellata'
                 prenotazione.save()
@@ -234,19 +233,17 @@ class CreaPrenotazioneVeloceView(LoginRequiredMixin, View):
         data_str = request.POST.get('data')
         ora_str = request.POST.get('ora')
         
-        # 1. Recuperiamo la descrizione scritta dal paziente
         descrizione_testo = request.POST.get('descrizione', '')
 
         data_ora_naive = datetime.strptime(f"{data_str} {ora_str}", "%Y-%m-%d %H:%M")
         data_ora_ufficiale = timezone.make_aware(data_ora_naive)
 
-        # 2. Creiamo la prenotazione inserendo anche la descrizione
         Prenotazione.objects.create(
             paziente=request.user.paziente,
             terapeuta=terapeuta,
             data_ora=data_ora_ufficiale,
             durata_minuti=60,
-            descrizione=descrizione_testo  # <--- IL CAMPO AGGIUNTO
+            descrizione=descrizione_testo
         )
         
         messages.success(request, f"Richiesta inviata! Attendi la conferma dal Dott. {terapeuta.user.last_name}.")
@@ -315,7 +312,7 @@ class ListaPazientiTerapeutaView(LoginRequiredMixin, View):
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
-        # MAGIA: Attacchiamo i file e i permessi direttamente ai pazienti
+        # Attacchiamo i file e i permessi direttamente ai pazienti
         for paziente in page_obj:
             rel = RelazioneTerapeutica.objects.filter(terapeuta=terapeuta, paziente=paziente).first()
             if rel:
@@ -336,8 +333,6 @@ class ListaPazientiTerapeutaView(LoginRequiredMixin, View):
         }
         return render(request, 'prenotazioni/lista_pazienti.html', context)
 
-
-# LE NUOVE API PER LA GESTIONE FILE
 class EliminaDocumentoView(LoginRequiredMixin, View):
     def post(self, request, doc_id):
         doc = get_object_or_404(Documento, id=doc_id)
@@ -355,22 +350,22 @@ class CreaCartellaView(LoginRequiredMixin, View):
         is_condivisa = data.get('is_condivisa')
         nome_cartella = data.get('nome')
 
-        # 1. Trova la relazione oppure creala al volo per i nuovi pazienti
+        # 1. Trova la relazione oppure la crea per i nuovi pazienti
         relazione, _ = RelazioneTerapeutica.objects.get_or_create(
             terapeuta=request.user.terapeuta, 
             paziente_id=paziente_id
         )
         
-        # 2. Trova la cartella padre (Root) oppure creala al volo
+        # 2. Trova la cartella padre (Root) oppure la crea se non esiste
         nome_root = "Condivisa" if is_condivisa else "Privata"
         cartella_padre, _ = CartellaFile.objects.get_or_create(
             relazione=relazione, 
             is_condivisa=is_condivisa, 
             cartella_padre__isnull=True,
-            defaults={'nome': nome_root} # Se non esiste, chiamala così
+            defaults={'nome': nome_root}
         )
         
-        # 3. Crea finalmente la sottocartella richiesta
+        # 3. Crea la sottocartella richiesta
         CartellaFile.objects.create(
             nome=nome_cartella,
             relazione=relazione,
@@ -408,7 +403,7 @@ class UploadFileView(LoginRequiredMixin, View):
         cartella_id = request.POST.get('cartella_id')
         files = request.FILES.getlist('file')
         
-        # 1. Generazione automatica e sicura della relazione per i nuovi account
+        # Generazione automatica e sicura della relazione per i nuovi account
         if hasattr(request.user, 'terapeuta'):
             relazione, _ = RelazioneTerapeutica.objects.get_or_create(
                 terapeuta=request.user.terapeuta, 
@@ -420,7 +415,7 @@ class UploadFileView(LoginRequiredMixin, View):
                 terapeuta_id=request.POST.get('terapeuta_id')
             )
         
-        # 2. Assegnazione sicura della cartella
+        # Assegnazione sicura della cartella
         if cartella_id:
             cartella = CartellaFile.objects.get(id=cartella_id, relazione=relazione)
         else:
@@ -446,7 +441,7 @@ class EliminaCartellaView(LoginRequiredMixin, View):
         cartella = get_object_or_404(CartellaFile, id=cartella_id)
         # Il medico che ha in cura il paziente può eliminare le cartelle
         if cartella.relazione.terapeuta == request.user.terapeuta:
-            cartella.delete() # Questo eliminerà in automatico anche i file dentro grazie al DB in cascata!
+            cartella.delete() #  Elimina in automatico anche i file dentro grazie alla funzione cascade
             return JsonResponse({'success': True})
             
         return JsonResponse({'success': False})

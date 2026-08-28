@@ -61,13 +61,10 @@ class RegistrazioneTerapeutaView(View):
         if form.is_valid():
             try:
                 with transaction.atomic():
-                    # 1. Creazione Utente base in RAM
                     user = form.save(commit=False)
-                    # Hashing della password
                     user.set_password(form.cleaned_data['password'])
                     user.save()
 
-                    # 2. Creazione del profilo Terapeuta
                     Terapeuta.objects.create(
                         user=user,
                         numero_telefono=form.cleaned_data.get('numero_telefono')
@@ -84,7 +81,6 @@ class RegistrazioneTerapeutaView(View):
 
 class VetrinaTerapeutiView(View):
     def get(self, request):
-        # Partiamo con tutti i terapeuti
         terapeuti = Terapeuta.objects.all()
 
         citta_scelta = request.GET.get('citta')
@@ -138,12 +134,10 @@ class VetrinaTerapeutiView(View):
 
 class ProfiloPazienteView(LoginRequiredMixin, View):
     def get(self, request):
-        # Sicurezza: Controlla che l'utente loggato sia effettivamente un Paziente
         if not hasattr(request.user, 'paziente'):
             messages.error(request, "Accesso negato: non possiedi un profilo paziente.")
             return redirect('home')
 
-        # Istanziamo i due form riempiendoli con i dati ATTUALI dell'utente (instance=...)
         user_form = UserUpdateForm(instance=request.user)
         paziente_form = PazienteUpdateForm(instance=request.user.paziente)
 
@@ -168,7 +162,6 @@ class ProfiloPazienteView(LoginRequiredMixin, View):
             messages.success(request, "Il tuo profilo è stato aggiornato con successo!")
             return redirect('utenti:profilo_paziente')
 
-        # Se c'è un errore, ricarica la pagina mostrando gli errori
         messages.error(request, "Errore nell'aggiornamento. Controlla i dati inseriti.")
         context = {
             'user_form': user_form,
@@ -185,13 +178,11 @@ class ProfiloTerapeutaView(LoginRequiredMixin, View):
         user_form = UserUpdateForm(instance=request.user)
         terapeuta_form = TerapeutaUpdateForm(instance=request.user.terapeuta)
         
-        # Estraiamo i dati per costruire l'interfaccia JS personalizzata
         context = {
             'user_form': user_form,
             'terapeuta_form': terapeuta_form,
             'tutte_specializzazioni': Specializzazione.objects.all(),
             'tutti_studi': Studio.objects.all(),
-            # Liste degli ID attualmente selezionati dal medico
             'mie_specializzazioni': request.user.terapeuta.specializzazioni.values_list('id', flat=True),
             'miei_studi': request.user.terapeuta.studi.values_list('id', flat=True),
         }
@@ -208,7 +199,6 @@ class ProfiloTerapeutaView(LoginRequiredMixin, View):
                 request.user.terapeuta.save()
 
         user_form = UserUpdateForm(request.POST, instance=request.user)
-        # Riceviamo i file (request.FILES) con la corretta indentazione
         terapeuta_form = TerapeutaUpdateForm(request.POST, request.FILES, instance=request.user.terapeuta)
 
         if user_form.is_valid() and terapeuta_form.is_valid():
@@ -238,7 +228,7 @@ class AggiungiStudioView(LoginRequiredMixin, View):
 
         citta = request.POST.get('citta')
         indirizzo = request.POST.get('indirizzo')
-        foto = request.FILES.get('foto_studio') # Catturiamo il file dell'immagine
+        foto = request.FILES.get('foto_studio') 
 
         if citta and indirizzo and citta.strip() and indirizzo.strip():
             nuovo_studio, created = Studio.objects.get_or_create(
@@ -246,7 +236,6 @@ class AggiungiStudioView(LoginRequiredMixin, View):
                 indirizzo=indirizzo.strip()
             )
             
-            # Se è stata caricata una foto, la assegniamo allo studio
             if foto:
                 nuovo_studio.foto_studio = foto
                 nuovo_studio.save()
@@ -259,15 +248,12 @@ class AggiungiStudioView(LoginRequiredMixin, View):
         messages.error(request, "Errore: Compila sia la Città che l'Indirizzo con dati validi.")
         return render(request, 'utenti/aggiungi_studio.html')
 
-    from django.shortcuts import get_object_or_404 # Aggiungi questo in cima al file se non c'è
-
 class ModificaStudioView(LoginRequiredMixin, View):
     def get(self, request, studio_id):
         if not hasattr(request.user, 'terapeuta'):
             messages.error(request, "Accesso negato.")
             return redirect('home')
         
-        # Peschiamo lo studio
         studio = get_object_or_404(Studio, id=studio_id)
         
         # Sicurezza: verifichiamo che questo studio sia tra quelli del terapeuta
@@ -300,7 +286,6 @@ class ModificaStudioView(LoginRequiredMixin, View):
             studio.citta = citta.strip().capitalize()
             studio.indirizzo = indirizzo.strip()
             
-            # Se ha caricato una nuova foto, la sostituiamo
             if foto:
                 studio.foto_studio = foto
                 

@@ -3,18 +3,15 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/prenotazioni.css' %}?v=2">
-    <!-- CSS di Flatpickr per il calendario -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock %}
 
 {% block contenuto %}
 <div class="prenotazioni-container" style="max-width: 900px;">
     
-    <!-- CARD PROFILO DEL MEDICO -->
     <div class="terapeuta-card">
         <h2>Dott. {{ terapeuta.user.first_name }} {{ terapeuta.user.last_name }}
 
-        <!-- LA LOGICA DELLA SPUNTA -->
         {% if terapeuta.verified %}
             <span class="spunta-badge spunta-blu" title="Medico Verificato">✓</span>
         {% else %}
@@ -37,7 +34,6 @@
         {% endif %}
     </div>
 
-    <!-- SEZIONE INTERATTIVA: STUDIO -> CALENDARIO -> ORARI -->
     <h3 style="color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 40px;">Prenota un appuntamento</h3>
     
     <div class="prenotazione-layout">
@@ -50,19 +46,16 @@
                 <form id="form-prenotazione">
                     {% for studio in studi %}
                         
-                        <!-- CARD DELLO STUDIO -->
                         <label class="studio-card-label">
                             <!-- Salviamo l'URL della foto nel parametro data-img -->
                             <input type="radio" name="studio_id" value="{{ studio.id }}" data-img="{% if studio.foto_studio %}{{ studio.foto_studio.url }}{% endif %}" class="radio-studio hidden-radio">
                             
                             <div class="studio-card-content">
-                                <!-- Dettagli Testuali -->
                                 <div class="studio-card-text">
                                     <span class="studio-indirizzo">📍 {{ studio.indirizzo }}</span>
                                     <span class="studio-citta">{{ studio.citta }}</span>
                                 </div>
-                                
-                                <!-- Icona di conferma animata -->
+        
                                 <div class="check-icon">✓</div>
                             </div>
                         </label>
@@ -70,7 +63,6 @@
                     {% endfor %}
                 </form>
 
-                <!-- BLOCCO FOTO GRANDE (Nascosto di default, si anima col click) -->
                 <div id="studio-image-preview" style="display: none; margin-top: 25px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 2px solid #e1e8ed;">
                     <h5 style="background: #f8f9fa; color: #2c3e50; margin: 0; padding: 12px 15px; border-bottom: 1px solid #e1e8ed; text-align: center;">Foto dell'ambulatorio</h5>
                     <img id="studio-img-tag" src="" alt="Foto Studio" style="width: 100%; max-height: 250px; object-fit: cover; display: block;">
@@ -87,7 +79,6 @@
         <div class="calendario-container" id="box-calendario">
             <h4 style="margin-top: 0; color: #2c3e50; font-size: 1.2em;">2. Scegli data e ora</h4>
             <p id="avviso-calendario" style="color: #888; font-size: 0.9em; margin-bottom: 20px;">Seleziona prima una sede lavorativa a sinistra.</p>
-            
             <!-- Qui Flatpickr inietterà il calendario -->
             <input type="text" id="calendario-input" style="display: none;">
 
@@ -96,13 +87,11 @@
                 <!-- I bottoni degli orari appariranno qui tramite JS -->
             </div>
             
-            <!-- Testo opzionale (Nascosto di default) -->
             <div id="descrizione-container" style="display: none; width: 100%; margin-top: 25px;">
                 <label for="descrizione-input" style="font-weight: bold; display: block; margin-bottom: 5px; color: #2c3e50; font-size: 0.95em;">Motivo della seduta (Opzionale)</label>
                 <textarea id="descrizione-input" rows="2" placeholder="Es: Prima visita per gestione dell'ansia..." style="width: 100%; padding: 10px; border: 2px solid #e1e8ed; border-radius: 8px; resize: vertical; box-sizing: border-box; font-family: inherit; transition: border-color 0.3s;"></textarea>
             </div>
 
-            <!-- FORM INVISIBILE PER L'INVIO FINALE -->
             <form id="form-conferma-prenotazione" method="POST" action="{% url 'prenotazioni:crea_prenotazione_veloce' %}" style="display: none;">
                 {% csrf_token %}
                 <input type="hidden" name="terapeuta_id" value="{{ terapeuta.id }}">
@@ -110,7 +99,6 @@
                 <input type="hidden" name="data" id="hidden_data">
                 <input type="hidden" name="ora" id="hidden_ora">
                 
-                <!-- ECCO LA RIGA CHE MANCAVA! -->
                 <input type="hidden" name="descrizione" id="hidden_descrizione">
             </form>
         </div>
@@ -118,7 +106,6 @@
     </div>
 </div>
 
-<!-- Salviamo la mappa dei giorni di Django in formato JSON sicuro per il JS -->
 {{ mappa_giorni_json|json_script:"mappa-giorni-data" }}
 
 {% endblock %}
@@ -128,7 +115,5 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <!-- Traduzione in italiano per i giorni e i mesi -->
     <script src="https://npmcdn.com/flatpickr/dist/l10n/it.js"></script>
-
-    <!-- IL NOSTRO FILE JS SEPARATO -->
     <script src="{% static 'js/profilo_prenota.js' %}"></script>
 {% endblock %}

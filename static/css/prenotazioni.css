@@ -131,7 +131,6 @@
     font-size: 0.9em;
 }
 
-/* Etichette di stato (Badges) */
 .badge {
     padding: 6px 12px;
     border-radius: 15px;
@@ -185,7 +184,6 @@
     align-items: flex-start;
 }
 
-/* LA COLONNA DEGLI STUDI */
 .selezione-studio {
     flex: 1;
     min-width: 320px;
@@ -196,23 +194,20 @@
     box-shadow: 0 4px 15px rgba(0,0,0,0.02);
 }
 
-/* Nascondiamo il classico pallino del radio button */
 .hidden-radio {
     display: none;
 }
 
-/* La label diventa il contenitore cliccabile */
 .studio-card-label {
     display: block;
     margin-bottom: 15px;
     cursor: pointer;
 }
 
-/* L'interno della Card dello studio */
 .studio-card-content {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Spinge la spunta tutta a destra */
+    justify-content: space-between; 
     background: #fdfdfd;
     border: 2px solid #e1e8ed;
     border-radius: 10px;
@@ -220,21 +215,18 @@
     transition: all 0.3s ease;
 }
 
-/* Effetto al passaggio del mouse */
 .studio-card-label:hover .studio-card-content {
     border-color: #a3c9b3;
     transform: translateY(-2px);
     box-shadow: 0 6px 15px rgba(0,0,0,0.05);
 }
 
-/* Effetto quando lo studio è SELEZIONATO */
 .hidden-radio:checked + .studio-card-content {
     border-color: #2e8b57;
     background-color: #f4fbf7;
     box-shadow: 0 4px 12px rgba(46, 139, 87, 0.15);
 }
 
-/* L'immagine in miniatura */
 .studio-card-img {
     width: 65px;
     height: 65px;
@@ -244,7 +236,6 @@
     border: 1px solid #eee;
 }
 
-/* Il placeholder se non c'è la foto */
 .studio-card-img-placeholder {
     width: 65px;
     height: 65px;
@@ -276,7 +267,6 @@
     margin-top: 4px;
 }
 
-/* Icona di spunta (appare solo se selezionato) */
 .check-icon {
     margin-left: 10px;
     background: #2e8b57;
@@ -299,7 +289,6 @@
     transform: scale(1);
 }
 
-/* LA COLONNA DEL CALENDARIO */
 .calendario-container {
     flex: 1;
     min-width: 320px;
@@ -311,7 +300,6 @@
     border-radius: 12px;
     border: 1px solid #e1e8ed;
     box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-    /* Opacità ridotta finché non si seleziona uno studio */
     opacity: 0.5; 
     pointer-events: none; 
     transition: opacity 0.4s ease;
@@ -322,13 +310,11 @@
     pointer-events: auto;
 }
 
-/* Contenitore per i bottoncini degli orari */
 #slot-orari-container {
     margin-top: 25px;
     width: 100%;
 }
 
-/* Nuova grafica per i bottoni degli Slot Orari */
 .btn-slot-orario {
     padding: 10px 15px;
     background-color: #fff;
@@ -354,7 +340,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
     text-align: center;
-    width: 100%; /* Si adatterà perfettamente alla griglia JS */
+    width: 100%; 
     box-sizing: border-box;
 }
 

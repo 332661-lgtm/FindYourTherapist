@@ -8,7 +8,6 @@
     margin-top: 20px;
 }
 
-/* COLONNA SINISTRA: IL BOX DEI FILTRI */
 .sidebar-filtri {
     width: 25%;
     background: white;
@@ -55,10 +54,9 @@
     outline: none;
 }
 
-/* NUOVO: Stile per le scelte multiple (checkboxes) */
 .checkbox-list {
     max-height: 150px;
-    overflow-y: auto; /* Aggiunge la barra di scorrimento se ci sono tante specializzazioni */
+    overflow-y: auto; 
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 10px;
@@ -99,7 +97,6 @@
     background-color: #1f633d;
 }
 
-/* COLONNA DESTRA: I RISULTATI DELLA RICERCA */
 .risultati-container {
     width: 75%;
     display: flex;
@@ -114,12 +111,12 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     display: flex;
     justify-content: space-between;
-    align-items: flex-start; /* Allinea gli elementi in alto invece che al centro */
+    align-items: flex-start; 
     border-left: 5px solid #2e8b57;
 }
 
 .terapeuta-info {
-    width: 75%; /* Lasciamo un po' di spazio per il bottone a destra */
+    width: 75%; 
 }
 
 .terapeuta-info h4 {
@@ -134,7 +131,6 @@
     font-size: 0.95em;
 }
 
-/* NUOVO: Stile per la descrizione */
 .terapeuta-descrizione {
     font-style: italic;
     color: #666;
@@ -189,7 +185,7 @@
 }
 
 .multi-input-group input {
-    flex-grow: 1; /* Occupa tutto lo spazio disponibile */
+    flex-grow: 1; 
 }
 
 .btn-secondary-small {
@@ -216,7 +212,7 @@
 }
 
 .spec-tag {
-    background-color: #e2f0e6; /* Verdino chiaro */
+    background-color: #e2f0e6;
     color: #1f633d;
     padding: 6px 12px;
     border-radius: 15px;

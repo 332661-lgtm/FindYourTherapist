@@ -19,7 +19,6 @@
         <div class="nav-links">
             <a href="{% url 'utenti:vetrina' %}">Cerca Terapeuti</a>
             {% if user.terapeuta %}
-                <!-- Avrà un pallino con il numero di richieste -->
                 <a href="{% url 'prenotazioni:visualizza_disponibilita' %}">Programmazione studi</a>
                 <a href="{% url 'prenotazioni:visualizza_prenotazioni' %}">Sedute</a>
                 <a href="{% url 'prenotazioni:lista_pazienti' %}">Pazienti</a>
@@ -30,10 +29,8 @@
                 <a href="{% url 'prenotazioni:cartella_paziente' %}">I miei Documenti</a>
             {% endif %}
             {% if user.is_authenticated %}
-                <!-- MENU A TENDINA CON ICONA OMINO -->
                 <div class="nav-dropdown">
                     <button class="nav-dropbtn">
-                        <!-- Icona Omino stilizzato (SVG) -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                     </button>
                     
@@ -44,7 +41,6 @@
                             <span class="dropdown-header">Ciao, {{ user.first_name }}</span>
                             <form method="GET" action="{% url 'utenti:profilo_paziente' %}">
                                 <button type="submit" class="dropdown-btn">
-                                    <!-- Icona Utente -->
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                                     Il mio Profilo
                                 </button>
@@ -54,7 +50,6 @@
                             <span class="dropdown-header">Ciao, Dott. {{ user.first_name }}</span>
                             <form method="GET" action="{% url 'utenti:profilo_terapeuta' %}">
                                 <button type="submit" class="dropdown-btn">
-                                    <!-- Icona Utente/Medico -->
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                                     Profilo Medico
                                 </button>
@@ -64,7 +59,6 @@
                             <span class="dropdown-header">Ciao, Admin {{ user.username }}</span>
                         {% endif %}
 
-                        <!-- Bottone sicuro per il logout (POST) con icona uscita e LINEA GRIGIA di separazione -->
                         <form method="POST" action="{% url 'logout' %}" style="border-top: 1px solid #eee;">
                             {% csrf_token %}
                             <button type="submit" class="dropdown-logout-btn">
@@ -91,7 +85,6 @@
     {% if messages %}
         <div class="toast-container">
             {% for message in messages %}
-                <!-- La classe cambia colore in base al tipo di messaggio (success, error, warning) -->
                 <div class="toast-message toast-{{ message.tags }}">
                     <span>{{ message }}</span>
                     <button class="toast-close" onclick="this.parentElement.remove();">&times;</button>
@@ -100,9 +93,7 @@
         </div>
     {% endif %}
 
-    <!-- I tuoi script JS -->
     {% block extra_js %}{% endblock %}
-
     <!-- SCRIPT PER FAR SCOMPARIRE I POP-UP DA SOLI DOPO 5 SECONDI -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -110,7 +101,7 @@
                 const toasts = document.querySelectorAll('.toast-message');
                 toasts.forEach(toast => {
                     toast.style.animation = 'fadeOut 0.5s forwards';
-                    setTimeout(() => toast.remove(), 500); // Rimuove l'HTML dopo l'animazione
+                    setTimeout(() => toast.remove(), 500);
                 });
             }, 5000); // 5000 millisecondi = 5 secondi
         });

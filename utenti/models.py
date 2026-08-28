@@ -35,7 +35,6 @@ class Paziente(models.Model):
     
 
     def __str__(self):
-        # I nomi e cognomi ora li peschiamo dal modello User di Django
         return f"{self.user.first_name} {self.user.last_name}"
 
     class Meta:
@@ -52,7 +51,6 @@ class Paziente(models.Model):
 class Terapeuta(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     numero_telefono = models.CharField(max_length=15, blank=True, null=True)
-    # Aggiungiamo la relazione con lo Studio (Un terapeuta lavora in uno o più studi)
     studi = models.ManyToManyField(Studio, related_name='terapeuti', blank=True)
     prezzo = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
     descrizione = models.TextField(blank=True, null=True)
@@ -76,18 +74,19 @@ class Terapeuta(models.Model):
         if hasattr(self, 'user') and hasattr(self.user, 'paziente'):
             raise ValidationError("Sicurezza: Questo utente è già registrato come Paziente. Non può avere anche un profilo Terapeuta.")
 
-# 1. IL LEGAME TERAPEUTA-PAZIENTE (Per salvare le impostazioni, come lo switch!)
+
+# 1. IL LEGAME TERAPEUTA-PAZIENTE (Per salvare le impostazioni)
 class RelazioneTerapeutica(models.Model):
     terapeuta = models.ForeignKey(Terapeuta, on_delete=models.CASCADE)
     paziente = models.ForeignKey(Paziente, on_delete=models.CASCADE)
     
-    # Questo è il toggle switch della cartella condivisa!
+    # Questo è il toggle switch della cartella condivisa
     paziente_puo_caricare_file = models.BooleanField(default=False)
     
     class Meta:
         unique_together = ('terapeuta', 'paziente')
 
-# 2. IL SISTEMA A CARTELLE (Supporta sottocartelle infinite)
+# 2. IL SISTEMA A CARTELLE 
 class CartellaFile(models.Model):
     nome = models.CharField(max_length=100)
     relazione = models.ForeignKey(RelazioneTerapeutica, on_delete=models.CASCADE, related_name="cartelle")
@@ -106,11 +105,9 @@ class CartellaFile(models.Model):
 class Documento(models.Model):
     cartella = models.ForeignKey(CartellaFile, on_delete=models.CASCADE, related_name="documenti")
     
-    # Il file vero e proprio (Django lo salverà nella cartella media)
+    # Il file vero e proprio (Django lo salva nella cartella media)
     file = models.FileField(upload_to='documenti_clinici/')
     nome_originale = models.CharField(max_length=255)
-    
-    # Serve per il "pallino": sappiamo se è stato caricato dall'Utente-Paziente o dall'Utente-Medico
     caricato_da = models.ForeignKey(User, on_delete=models.CASCADE)
     data_caricamento = models.DateTimeField(auto_now_add=True)
 

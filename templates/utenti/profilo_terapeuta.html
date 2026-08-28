@@ -39,7 +39,6 @@
             <label>{{ terapeuta_form.foto_profilo.label|default:"Foto del Profilo" }}</label>
             <div class="input-box">
                 
-                <!-- 1. ANTEPRIMA IMMAGINE E TASTO RIMUOVI -->
                 {% if request.user.terapeuta.foto_profilo %}
                     <div id="preview-foto-profilo" style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
                         <img src="{{ request.user.terapeuta.foto_profilo.url }}" alt="Foto Profilo" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 2px solid #2e8b57; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
@@ -50,10 +49,8 @@
                     </div>
                 {% endif %}
 
-                <!-- 2. IL CAMPO PER CARICARE (Che ora ha lo stile personalizzato) -->
                 {{ terapeuta_form.foto_profilo }}
                 
-                <!-- 3. IL CAMPO SPIA NASCOSTO PER PYTHON -->
                 <input type="hidden" name="elimina_foto_profilo" id="elimina_foto_profilo_flag" value="0">
 
                 <small style="color: #888; display: block; margin-top: 8px;">Carica un'immagine quadrata per un risultato ottimale.</small>
@@ -61,12 +58,9 @@
             </div>
         </div>
 
-        <!-- 4. LO SCRIPT CHE AZIONA IL BOTTONE -->
         <script>
             function eliminaFotoProfilo() {
-                // Nasconde la foto e il bottone
                 document.getElementById('preview-foto-profilo').style.display = 'none';
-                // Avvisa Python che vogliamo eliminare la foto impostando il valore a 1
                 document.getElementById('elimina_foto_profilo_flag').value = '1';
             }
         </script>
@@ -107,17 +101,14 @@
             <label>{{ terapeuta_form.descrizione.label }}</label>
             <div class="input-box">
                 {{ terapeuta_form.descrizione }}
-                <!-- Contatore testuale di aiuto -->
                 <small style="color: #888; display: block; margin-top: 5px;">Massimo 500 caratteri.</small>
                 {% if terapeuta_form.descrizione.errors %}<span class="error-text">{{ terapeuta_form.descrizione.errors|striptags }}</span>{% endif %}
             </div>
         </div>
 
-        <!-- SEZIONE SPECIALIZZAZIONI AUTOMATICA -->
         <div class="profilo-row" style="align-items: flex-start;">
             <label>Le tue Specializzazioni</label>
             <div class="input-box">
-                <!-- Il bottone Aggiungi è sparito, fa tutto in automatico la select -->
                 <select id="spec-select" class="spec-dropdown">
                     <option value="">Seleziona una specializzazione...</option>
                     {% for spec in tutte_specializzazioni %}
@@ -141,7 +132,6 @@
             </div>
         </div>
 
-        <!-- SEZIONE RICERCA E AGGIUNTA STUDI -->
         <div class="profilo-row" style="align-items: flex-start; margin-top: 20px;">
             <label>Sedi e Ambulatori</label>
             <div class="input-box">
@@ -166,8 +156,6 @@
                     </div>
                 </div>
 
-                <!-- Box aggiunta nuovo studio con input sbloccato -->
-                <!-- Bottone per creare un nuovo studio in una pagina separata -->
                 <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
                     <p style="font-size: 0.9em; color: #666; margin-top: 0; margin-bottom: 10px;">Non trovi la tua sede nell'elenco?</p>
                     <a href="{% url 'utenti:aggiungi_studio' %}" class="btn-secondary-small" style="text-decoration: none; display: inline-block;">

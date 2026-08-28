@@ -56,7 +56,6 @@
     width: 70%;
 }
 
-/* Escludiamo le checkbox per non farle esplodere a tutto schermo */
 .profilo-row input:not([type="checkbox"]),
 .profilo-row textarea {
     width: 100%;
@@ -67,7 +66,6 @@
     font-family: inherit;
 }
 
-/* Evidenziazione verde al click */
 .profilo-row input:focus,
 .profilo-row textarea:focus {
     border-color: #2e8b57;
@@ -165,14 +163,13 @@
 
 #lista-studi-dinamica {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Affianca a due a due */
+    grid-template-columns: 1fr 1fr; 
     gap: 10px;
-    max-height: 110px; /* Limite per far apparire lo scroll */
+    max-height: 110px;
     overflow-y: auto;
     padding-right: 5px;
 }
 
-/* Barra di scorrimento stilizzata */
 #lista-studi-dinamica::-webkit-scrollbar {
     width: 6px;
 }
@@ -184,9 +181,8 @@
     background-color: #f1f1f1; 
 }
 
-/* Elemento singolo dello studio */
+
 .studio-suggerito-item {
-    /* Regole Salvavita per annullare l'ereditarietà di .profilo-row label */
     width: 100% !important;
     text-align: left !important;
     font-weight: normal !important;
@@ -207,7 +203,6 @@
     border-color: #2e8b57;
 }
 
-/* Layout interno del bottone studio */
 .studio-content {
     display: flex;
     align-items: center; 
@@ -218,11 +213,9 @@
 .studio-content span {
     word-break: break-word;
     line-height: 1.3;
-    flex-grow: 1; /* Il testo prende tutto lo spazio rimanente */
+    flex-grow: 1; 
 }
 
-/* Casella di spunta verde modernizzata */
-/* Stile blindato per la VERA checkbox */
 .profilo-row input.studio-checkbox {
     width: 18px !important;
     height: 18px !important;
@@ -253,7 +246,7 @@
 .badge-nuova-notifica {
     display: inline-flex;
     align-items: center;
-    background: linear-gradient(135deg, #007bff, #0056b3); /* Gradiente per dare profondità */
+    background: linear-gradient(135deg, #007bff, #0056b3); 
     color: #ffffff;
     padding: 4px 12px;
     border-radius: 20px;
@@ -276,26 +269,23 @@
     animation: blink 1.5s infinite;
 }
 
-/* Fa pulsare l'intera etichetta */
 @keyframes pulse-badge {
     0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
     70% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(0, 123, 255, 0); }
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
 }
 
-/* Fa lampeggiare il pallino bianco all'interno */
 @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
 }
 
-/* Stile per i campi di upload immagine */
 input[type="file"] {
     display: block;
     width: 100%;
     padding: 12px;
     background: #fdfdfd;
-    border: 2px dashed #d1e3df; /* Bordo tratteggiato elegante */
+    border: 2px dashed #d1e3df; 
     border-radius: 8px;
     color: #666;
     font-size: 0.9em;
@@ -307,13 +297,12 @@ input[type="file"]:hover {
     border-color: #2e8b57;
 }
 
-/* Il vero e proprio bottone "Scegli File" */
 input[type="file"]::file-selector-button {
     background-color: transparent;
-    color: #2e8b57; /* Verde primario dell'app */
+    color: #2e8b57; 
     border: 1px solid #2e8b57;
     padding: 8px 16px;
-    border-radius: 20px; /* Stile pillola */
+    border-radius: 20px; 
     cursor: pointer;
     font-weight: bold;
     font-size: 0.95em;

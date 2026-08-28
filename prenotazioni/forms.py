@@ -75,8 +75,6 @@ class AssenzaForm(forms.ModelForm):
         if terapeuta:
             self.instance.terapeuta = terapeuta
 
-# IL FORM PER LA MODIFICA SEMPLICE DA PARTE DEL MEDICO
-# IL FORM PER LA MODIFICA SEMPLICE DA PARTE DEL MEDICO
 class ModificaPrenotazioneForm(forms.ModelForm):
     class Meta:
         model = Prenotazione
@@ -89,7 +87,6 @@ class ModificaPrenotazioneForm(forms.ModelForm):
     def clean_data_ora(self):
         data_ora = self.cleaned_data.get('data_ora')
         
-        # PERMETTIAMO SIA L'ORA ESATTA (0) CHE LA MEZZ'ORA (30)
         if data_ora.minute not in [0, 30]:
             raise ValidationError("Gli orari possono essere scelti solo a scatti di mezz'ora (es. 15:00, 15:30).")
         

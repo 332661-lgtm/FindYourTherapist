@@ -2,15 +2,13 @@
 {% load static %}
 
 {% block extra_css %}
-    <!-- Riusiamo lo stesso CSS della registrazione per coerenza visiva -->
     <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=2">
 {% endblock %}
 
 {% block contenuto %}
-<div class="auth-container" style="max-width: 500px;"> <!-- Leggermente più stretto -->
+<div class="auth-container" style="max-width: 500px;"> 
     <h2 class="auth-title">Accedi a FindYourTherapist</h2>
 
-    <!-- Gestione errori di login nativi di Django -->
     {% if form.errors %}
         <div class="message-box message-error">
             Username o password non corretti. Riprova.
@@ -37,10 +35,8 @@
         </a>
     </div>
 
-    <!-- Linea di separazione -->
     <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd;">
 
-    <!-- Sezione "Non hai un account?" -->
     <div style="text-align: center;">
         <p style="color: #666; margin-bottom: 15px; font-weight: bold;">Non hai un account? Inizia da qui:</p>
         <div style="display: flex; gap: 15px; justify-content: center;">

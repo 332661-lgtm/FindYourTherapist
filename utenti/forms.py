@@ -116,7 +116,6 @@ class TerapeutaUpdateForm(forms.ModelForm):
         }
         widgets = {
             'foto_profilo': forms.FileInput(),
-            # Blocchiamo il resize via CSS in linea e mettiamo il maxlength a 500
             'descrizione': forms.Textarea(attrs={'rows': 4, 'maxlength': '500', 'style': 'resize: none;'}),
             'specializzazioni': forms.CheckboxSelectMultiple(),
             'studi': forms.CheckboxSelectMultiple(),

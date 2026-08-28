@@ -13,7 +13,6 @@ class Prenotazione(models.Model):
     descrizione = models.TextField(blank=True, null=True, help_text="Descrizione della seduta (opzionale)")
     nascosta_paziente = models.BooleanField(default=False)
     nascosta_terapeuta = models.BooleanField(default=False)
-    
     STATO_CHOICES = [
         ('in_programma', 'In Programma'),
         ('cancellata', 'Cancellata'),

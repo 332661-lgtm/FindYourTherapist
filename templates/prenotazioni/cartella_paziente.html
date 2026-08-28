@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block extra_css %}
-    <!-- Riusiamo lo stesso identico CSS del medico per mantenere la coerenza visiva! -->
     <link rel="stylesheet" href="{% static 'css/lista_pazienti.css' %}?v=1">
 {% endblock %}
 
@@ -105,6 +104,5 @@
 {% endblock %}
 
 {% block extra_js %}
-    <!-- Richiamiamo il nuovo file JS separato -->
     <script src="{% static 'js/cartella_paziente.js' %}?v=1"></script>
 {% endblock %}
