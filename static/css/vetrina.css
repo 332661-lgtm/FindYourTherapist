@@ -141,15 +141,22 @@
 }
 
 .badge-spec {
-    background: #e9ecef;
-    padding: 4px 10px;
+    background-color: #e2f0e6; /* Ripristinato il verde chiaro */
+    color: #1f633d; /* Ripristinato il testo verde scuro */
+    padding: 6px 12px;
     border-radius: 12px;
     font-size: 0.85em;
-    color: #333;
-    margin-right: 5px;
     font-weight: bold;
+    margin-right: 5px;
+    margin-bottom: 8px;
+    white-space: normal; 
+    word-wrap: break-word;
+    height: auto; 
+    line-height: 1.4; 
+    text-align: center; 
+    display: inline-block;   
+    border: 1px solid #2e8b57; 
 }
-
 .terapeuta-azioni {
     display: flex;
     flex-direction: column;

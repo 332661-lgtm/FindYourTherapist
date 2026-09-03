@@ -29,25 +29,15 @@
 
             <div class="filter-group">
                 <label>Specializzazioni</label>
-                <div class="multi-input-group">
-                    <input type="text" id="spec-input" list="spec-list" placeholder="Es. Ansia...">
-                    <datalist id="spec-list">
-                        {% for spec in specializzazioni %}
-                            <option data-id="{{ spec.id }}" value="{{ spec.nome }}"></option>
-                        {% endfor %}
-                    </datalist>
-                    <button type="button" id="add-spec-btn" class="btn-secondary-small">Aggiungi</button>
-                </div>
-
-                <div id="tags-container" class="tags-container">
+                
+                <input type="text" id="cerca-spec" placeholder="Cerca specializzazione..." style="margin-bottom: 10px;" autocomplete="off">
+                <div class="checkbox-list" id="lista-specializzazioni">
                     {% for spec in specializzazioni %}
-                        {% if spec.id in valori_scelti.specializzazioni %}
-                            <div class="spec-tag">
-                                {{ spec.nome }}
-                                <span class="remove-tag" onclick="removeTag(this)">×</span>
-                                <input type="hidden" name="specializzazione" value="{{ spec.id }}">
-                            </div>
-                        {% endif %}
+                        <div class="checkbox-item">
+                            <input type="checkbox" name="specializzazione" value="{{ spec.id }}" id="spec_{{ spec.id }}"
+                                   {% if spec.id in valori_scelti.specializzazioni %}checked{% endif %}>
+                            <label for="spec_{{ spec.id }}">{{ spec.nome }}</label>
+                        </div>
                     {% endfor %}
                 </div>
             </div>
@@ -75,7 +65,7 @@
                 </div>
                 
                 <div class="terapeuta-info">
-                    
+
                     <h4 style="display: flex; align-items: center; margin-bottom: 15px;">
                         Dott. {{ terapeuta.user.first_name }} {{ terapeuta.user.last_name }}
                         {% if terapeuta.verified %}
@@ -151,47 +141,22 @@
 </div>
 
 <script>
-    document.getElementById('add-spec-btn').addEventListener('click', function() {
-        const input = document.getElementById('spec-input');
-        const datalist = document.getElementById('spec-list');
-        const tagsContainer = document.getElementById('tags-container');
-        const val = input.value.trim();
-
-        if (!val) return; 
-
-        let specId = null;
-        let specName = null;
+    // 1. Logica dinamica: Filtro in tempo reale per le specializzazioni
+    document.getElementById('cerca-spec').addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        const items = document.querySelectorAll('#lista-specializzazioni .checkbox-item');
         
-        for (let option of datalist.options) {
-            if (option.value === val) {
-                specId = option.getAttribute('data-id');
-                specName = option.value;
-                break;
+        items.forEach(item => {
+            const nomeSpec = item.querySelector('label').textContent.toLowerCase();
+            if (nomeSpec.includes(query)) {
+                item.style.display = ''; 
+            } else {
+                item.style.display = 'none'; 
             }
-        }
-
-        if (specId) {
-            if (!document.querySelector('input[name="specializzazione"][value="'+specId+'"]')) {
-                const tag = document.createElement('div');
-                tag.className = 'spec-tag';
-                tag.innerHTML = `
-                    ${specName}
-                    <span class="remove-tag" onclick="removeTag(this)">×</span>
-                    <input type="hidden" name="specializzazione" value="${specId}">
-                `;
-                tagsContainer.appendChild(tag);
-            }
-            input.value = ''; 
-        } else {
-            alert('Seleziona una specializzazione valida suggerita dal menu a tendina.');
-        }
+        });
     });
 
-    function removeTag(element) {
-        element.parentElement.remove();
-    }
-
-    // Ricerca in tempo reale per nome
+    // 2. Ricerca in tempo reale per nome medico (questo c'era già, lo manteniamo intatto)
     document.getElementById('cerca-nome').addEventListener('input', function() {
         const query = this.value.toLowerCase().trim();
         const cards = document.querySelectorAll('.terapeuta-card');

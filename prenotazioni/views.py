@@ -185,6 +185,7 @@ class EliminaDisponibilitaView(LoginRequiredMixin, View):
         messages.success(request, "Turno eliminato con successo.")
         return redirect('prenotazioni:visualizza_disponibilita')
 
+# API per ottenere gli slot disponibili
 class OttieniSlotAPIView(View):
     def get(self, request):
         terapeuta_id = request.GET.get('terapeuta_id')
@@ -221,6 +222,7 @@ class OttieniSlotAPIView(View):
                 inizio_corrente += timedelta(hours=1) 
 
         slot_disponibili = sorted(list(set(slot_disponibili)))
+        # Usiamo il Json Response per restituire i dati in formato JSON, perchè il client-side (JavaScript) li richiede in questo formato.
         return JsonResponse({'slots': slot_disponibili})
 
 class CreaPrenotazioneVeloceView(LoginRequiredMixin, View):
@@ -246,7 +248,7 @@ class CreaPrenotazioneVeloceView(LoginRequiredMixin, View):
             descrizione=descrizione_testo
         )
         
-        messages.success(request, f"Richiesta inviata! Attendi la conferma dal Dott. {terapeuta.user.last_name}.")
+        messages.success(request, f"Richiesta elaborata con successo per il Dott. {terapeuta.user.last_name}.")
         return redirect('utenti:vetrina')
 
 class ModificaPrenotazioneView(LoginRequiredMixin, View):

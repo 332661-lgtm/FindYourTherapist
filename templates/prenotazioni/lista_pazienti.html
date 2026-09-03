@@ -36,7 +36,26 @@
                 </summary>
                 
                 <div class="details-content">
+                    <div class="details-content">
                     
+                    <!-- ANAGRAFICA E CONTATTI PAZIENTE -->
+                    <div style="background: #f8f9fa; border-left: 4px solid #2e8b57; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 0.95em; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                        <h5 style="margin-top: 0; color: #2e8b57; margin-bottom: 12px; font-size: 1.05em;">📋 Dati Anagrafici e Contatti</h5>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div>
+                                <p style="margin: 5px 0; color: #555;">📧 <strong>Email:</strong> <a href="mailto:{{ paziente.user.email }}" style="color: #007bff; text-decoration: none;">{{ paziente.user.email }}</a></p>
+                                <p style="margin: 5px 0; color: #555;">📞 <strong>Telefono:</strong> {{ paziente.numero_telefono|default:"<span style='color:#aaa; font-style:italic;'>Non inserito</span>"|safe }}</p>
+                                <p style="margin: 5px 0; color: #555;">🎂 <strong>Data di nascita:</strong> {{ paziente.data_nascita|date:"d/m/Y"|default:"<span style='color:#aaa; font-style:italic;'>Non inserita</span>"|safe }}</p>
+                            </div>
+                            <div>
+                                <p style="margin: 5px 0; color: #555;">💳 <strong>Codice Fiscale:</strong> {{ paziente.CF|default:"<span style='color:#aaa; font-style:italic;'>Non inserito</span>"|safe }}</p>
+                                <p style="margin: 5px 0; color: #555;">🏠 <strong>Indirizzo:</strong> {{ paziente.indirizzo|default:"<span style='color:#aaa; font-style:italic;'>Non inserito</span>"|safe }}</p>
+                                <p style="margin: 5px 0; color: #555;">🏙️ <strong>Città:</strong> {{ paziente.citta_residenza|default:"<span style='color:#aaa; font-style:italic;'>Non inserita</span>"|safe }}</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- 1. SEZIONE COLLOQUI -->
                     <details class="sub-details">
                         <summary class="sub-summary">

@@ -30,6 +30,7 @@ class Paziente(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     data_nascita = models.DateField(blank=True, null=True)
     numero_telefono = models.CharField(max_length=15, blank=True, null=True)
+    citta_residenza = models.CharField(max_length=100, blank=True, null=True)
     indirizzo = models.CharField(max_length=200, blank=True, null=True)
     CF = models.CharField(max_length=16, blank=True, null=True)  # Codice Fiscale
     
@@ -84,6 +85,8 @@ class RelazioneTerapeutica(models.Model):
     paziente_puo_caricare_file = models.BooleanField(default=False)
     
     class Meta:
+        verbose_name = "Relazione Terapeutica"
+        verbose_name_plural = "Relazioni Terapeutiche"
         unique_together = ('terapeuta', 'paziente')
 
 # 2. IL SISTEMA A CARTELLE 
@@ -98,6 +101,10 @@ class CartellaFile(models.Model):
     is_condivisa = models.BooleanField(default=False)
     data_creazione = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = "Cartella"
+        verbose_name_plural = "Cartelle"
+
     def __str__(self):
         return f"{self.nome} ({'Condivisa' if self.is_condivisa else 'Privata'})"
 
@@ -110,6 +117,10 @@ class Documento(models.Model):
     nome_originale = models.CharField(max_length=255)
     caricato_da = models.ForeignKey(User, on_delete=models.CASCADE)
     data_caricamento = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Documento"
+        verbose_name_plural = "Documenti"
 
     def __str__(self):
         return self.nome_originale

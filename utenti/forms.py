@@ -88,13 +88,14 @@ class UserUpdateForm(forms.ModelForm):
 class PazienteUpdateForm(forms.ModelForm):
     class Meta:
         model = Paziente
-        fields =  ['numero_telefono', 'data_nascita', 'indirizzo', 'CF']
+        fields =  ['numero_telefono', 'data_nascita', 'citta_residenza', 'indirizzo', 'CF']
         widgets = {
             'data_nascita': forms.DateInput(attrs={'type': 'date'})
         }
         labels = {
             'numero_telefono': 'Numero di telefono',
             'data_nascita': 'Data di nascita',
+            'citta_residenza': 'Città di residenza',
             'indirizzo': 'Indirizzo di residenza',
             'CF': 'Codice Fiscale'
         }

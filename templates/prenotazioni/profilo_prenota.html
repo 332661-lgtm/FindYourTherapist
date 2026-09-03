@@ -9,29 +9,58 @@
 {% block contenuto %}
 <div class="prenotazioni-container" style="max-width: 900px;">
     
-    <div class="terapeuta-card">
-        <h2>Dott. {{ terapeuta.user.first_name }} {{ terapeuta.user.last_name }}
-
-        {% if terapeuta.verified %}
-            <span class="spunta-badge spunta-blu" title="Medico Verificato">✓</span>
-        {% else %}
-            <span class="spunta-badge spunta-grigia" title="Profilo Non Verificato">✓</span>
-        {% endif %}
-        </h2>
+    <div class="terapeuta-card" style="display: flex; gap: 25px; align-items: flex-start; flex-wrap: wrap;">
         
-        <p><strong>Prezzo a seduta:</strong> € {{ terapeuta.prezzo|default:"Da concordare" }}</p>
-        
-        <div style="margin: 10px 0;">
-            {% for spec in terapeuta.specializzazioni.all %}
-                <span class="badge" style="background-color: #e2f0e6; color: #1f633d; font-weight: normal;">
-                    {{ spec.nome }}
-                </span>
-            {% endfor %}
+        <div class="terapeuta-foto" style="flex-shrink: 0;">
+            {% if terapeuta.foto_profilo %}
+                <img src="{{ terapeuta.foto_profilo.url }}" alt="Foto Dott. {{ terapeuta.user.last_name }}" style="width: 140px; height: 140px; object-fit: cover; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 3px solid #e2f0e6;">
+            {% else %}
+                <div style="width: 140px; height: 140px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3em; color: #ccc; border: 3px solid #e2f0e6;">👤</div>
+            {% endif %}
         </div>
 
-        {% if terapeuta.descrizione %}
-            <div class="bio-quote">"{{ terapeuta.descrizione }}"</div>
-        {% endif %}
+        <div class="terapeuta-info" style="flex-grow: 1; min-width: 300px;">
+            <h2 style="margin-top: 0; margin-bottom: 5px;">Dott. {{ terapeuta.user.first_name }} {{ terapeuta.user.last_name }}
+
+            {% if terapeuta.verified %}
+                <span class="spunta-badge spunta-blu" title="Medico Verificato">✓</span>
+            {% else %}
+                <span class="spunta-badge spunta-grigia" title="Profilo Non Verificato">✓</span>
+            {% endif %}
+            </h2>
+            
+            <p style="margin: 0 0 15px 0; color: #555; font-size: 1.1em;"><strong>Prezzo a seduta:</strong> € {{ terapeuta.prezzo|default:"Da concordare" }}</p>
+            
+            <div style="margin: 10px 0;">
+                {% for spec in terapeuta.specializzazioni.all %}
+                    <span class="badge" style="background-color: #e2f0e6; color: #1f633d; font-weight: normal; margin-bottom: 5px; display: inline-block;">
+                        {{ spec.nome }}
+                    </span>
+                {% endfor %}
+            </div>
+
+            <div class="contatti-box" style="background: #f8f9fa; border-radius: 8px; padding: 15px; margin-top: 20px; border-left: 4px solid #2e8b57; font-size: 0.95em;">
+                <p style="margin: 5px 0;">📧 <strong>Email:</strong> {{ terapeuta.user.email }}</p>
+                
+                {% if terapeuta.numero_telefono %}
+                    <p style="margin: 5px 0;">📞 <strong>Telefono:</strong> {{ terapeuta.numero_telefono }}</p>
+                {% endif %}
+                
+                {% if terapeuta.pec %}
+                    <p style="margin: 5px 0;">⚖️ <strong>PEC:</strong> {{ terapeuta.pec }}</p>
+                {% endif %}
+                
+                {% if terapeuta.link_ordine %}
+                    <p style="margin: 5px 0; margin-top: 10px;">
+                        🔗 <a href="{{ terapeuta.link_ordine }}" target="_blank" style="color: #2e8b57; font-weight: bold; text-decoration: none;">Verifica iscrizione all'Albo degli Psicologi &rarr;</a>
+                    </p>
+                {% endif %}
+            </div>
+
+            {% if terapeuta.descrizione %}
+                <div class="bio-quote" style="margin-top: 20px;">"{{ terapeuta.descrizione }}"</div>
+            {% endif %}
+        </div>
     </div>
 
     <h3 style="color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 40px;">Prenota un appuntamento</h3>
